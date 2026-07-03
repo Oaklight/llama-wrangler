@@ -691,6 +691,9 @@ function setLang(lang) {
   currentLang = lang;
   localStorage.setItem('llama-deck-lang', lang);
   applyI18n();
+  // Refresh dynamic content that uses t()
+  loadModels();
+  if (currentTab === 'dashboard') loadStatus();
 }
 
 function toggleLang() {
