@@ -7,6 +7,7 @@ nvidia-smi on PATH.
 
 import asyncio
 import logging
+import os
 import shutil
 
 import psutil
@@ -150,19 +151,28 @@ class SystemMonitor:
             "percent": vm.percent,
         }
 
-        # Disks
+        # Disks — walk up to nearest existing ancestor if path doesn't exist
         disks = []
+        seen_paths: set[str] = set()
         for path in self._disk_paths:
+            resolved = path
+            while resolved and not os.path.exists(resolved):
+                resolved = os.path.dirname(resolved)
+            if not resolved:
+                resolved = "/"
+            if resolved in seen_paths:
+                continue
+            seen_paths.add(resolved)
             try:
-                usage = psutil.disk_usage(path)
+                usage = psutil.disk_usage(resolved)
                 disks.append({
-                    "path": path,
+                    "path": resolved,
                     "total_gb": round(usage.total / 1073741824, 1),
                     "used_gb": round(usage.used / 1073741824, 1),
                     "free_gb": round(usage.free / 1073741824, 1),
                     "percent": usage.percent,
                 })
-            except (FileNotFoundError, PermissionError):
+            except (FileNotFoundError, PermissionError, OSError):
                 pass
 
         # Temperatures (Linux primarily; safe no-op elsewhere)
