@@ -355,6 +355,7 @@ td.actions { white-space: nowrap; text-align: right; }
   <symbol id="ico-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
   <symbol id="ico-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
   <symbol id="ico-heart" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+  <symbol id="ico-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
 </svg>
 
 <!-- Header -->
@@ -364,6 +365,10 @@ td.actions { white-space: nowrap; text-align: right; }
     <span class="badge badge-dim" id="serverBadge">Stopped</span>
   </div>
   <div class="header-right">
+    <button class="theme-toggle" onclick="toggleLang()" title="Switch language" id="langBtn">
+      <svg class="icon icon-lg"><use href="#ico-globe"/></svg>
+      <span id="langLabel" style="font-size:12px;font-weight:500;margin-left:2px;">EN</span>
+    </button>
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">
       <svg class="icon icon-lg"><use id="themeBtnIcon" href="#ico-moon"/></svg>
     </button>
@@ -372,11 +377,11 @@ td.actions { white-space: nowrap; text-align: right; }
 
 <!-- Tabs -->
 <div class="tabs">
-  <div class="tab active" data-tab="dashboard">Dashboard</div>
-  <div class="tab" data-tab="models">Models</div>
-  <div class="tab" data-tab="download">Download</div>
-  <div class="tab" data-tab="config">Config</div>
-  <div class="tab" data-tab="logs">Logs</div>
+  <div class="tab active" data-tab="dashboard" data-i18n="tab.dashboard">Dashboard</div>
+  <div class="tab" data-tab="models" data-i18n="tab.models">Models</div>
+  <div class="tab" data-tab="download" data-i18n="tab.download">Download</div>
+  <div class="tab" data-tab="config" data-i18n="tab.config">Config</div>
+  <div class="tab" data-tab="logs" data-i18n="tab.logs">Logs</div>
 </div>
 
 <!-- Content -->
@@ -386,54 +391,54 @@ td.actions { white-space: nowrap; text-align: right; }
   <div class="tab-panel active" id="tab-dashboard">
     <!-- Server Controls -->
     <div class="card">
-      <h3>Server</h3>
+      <h3 data-i18n="section.server">Server</h3>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <select id="startModel" style="flex:1;min-width:200px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg-input);color:var(--text);">
-          <option value="">Select a model...</option>
+          <option value="" data-i18n="select.model">Select a model...</option>
         </select>
-        <button class="btn btn-primary" onclick="startServer()" id="btnStart">Start</button>
-        <button class="btn btn-danger" onclick="stopServer()" id="btnStop" disabled>Stop</button>
-        <button class="btn" onclick="restartServer()" id="btnRestart" disabled>Restart</button>
+        <button class="btn btn-primary" onclick="startServer()" id="btnStart" data-i18n="btn.start">Start</button>
+        <button class="btn btn-danger" onclick="stopServer()" id="btnStop" disabled data-i18n="btn.stop">Stop</button>
+        <button class="btn" onclick="restartServer()" id="btnRestart" disabled data-i18n="btn.restart">Restart</button>
       </div>
       <div id="serverInfo" style="margin-top:12px;font-size:13px;color:var(--text-dim);"></div>
     </div>
 
     <!-- GPU Stats -->
-    <div class="section-label" id="gpuSectionLabel">GPU</div>
+    <div class="section-label" id="gpuSectionLabel" data-i18n="section.gpu">GPU</div>
     <div class="stat-grid" id="gpuGrid">
       <div class="stat-card">
-        <div class="label">VRAM Usage</div>
+        <div class="label" data-i18n="stat.vram">VRAM Usage</div>
         <div class="value" id="vramValue">--</div>
         <div class="progress-bar" id="vramBar"><div class="fill" style="width:0%"></div></div>
       </div>
       <div class="stat-card">
-        <div class="label">GPU Temp</div>
+        <div class="label" data-i18n="stat.gpuTemp">GPU Temp</div>
         <div class="value" id="gpuTempValue">--</div>
         <div class="sub" id="gpuTempSub"></div>
       </div>
       <div class="stat-card">
-        <div class="label">GPU Utilization</div>
+        <div class="label" data-i18n="stat.gpuUtil">GPU Utilization</div>
         <div class="value" id="utilValue">--</div>
         <div class="progress-bar"><div class="fill" id="utilFill" style="width:0%"></div></div>
       </div>
       <div class="stat-card">
-        <div class="label">Power</div>
+        <div class="label" data-i18n="stat.power">Power</div>
         <div class="value" id="powerValue">--</div>
         <div class="sub" id="powerSub"></div>
       </div>
     </div>
 
     <!-- CPU / RAM Stats -->
-    <div class="section-label">CPU / Memory</div>
+    <div class="section-label" data-i18n="section.cpuMem">CPU / Memory</div>
     <div class="stat-grid">
       <div class="stat-card">
-        <div class="label">CPU Usage</div>
+        <div class="label" data-i18n="stat.cpu">CPU Usage</div>
         <div class="value" id="cpuValue">--</div>
         <div class="progress-bar" id="cpuBar"><div class="fill" style="width:0%"></div></div>
         <div class="sub" id="cpuSub"></div>
       </div>
       <div class="stat-card">
-        <div class="label">RAM Usage</div>
+        <div class="label" data-i18n="stat.ram">RAM Usage</div>
         <div class="value" id="ramValue">--</div>
         <div class="progress-bar" id="ramBar"><div class="fill" style="width:0%"></div></div>
         <div class="sub" id="ramSub"></div>
@@ -441,19 +446,19 @@ td.actions { white-space: nowrap; text-align: right; }
     </div>
 
     <!-- Disk Stats -->
-    <div class="section-label">Storage</div>
+    <div class="section-label" data-i18n="section.storage">Storage</div>
     <div class="stat-grid" id="diskGrid"></div>
 
     <!-- Server Health / Uptime -->
-    <div class="section-label">Server</div>
+    <div class="section-label" data-i18n="section.server">Server</div>
     <div class="stat-grid">
       <div class="stat-card">
-        <div class="label">Health</div>
+        <div class="label" data-i18n="stat.health">Health</div>
         <div class="value" id="healthValue">--</div>
         <div class="sub" id="healthSub"></div>
       </div>
       <div class="stat-card">
-        <div class="label">Uptime</div>
+        <div class="label" data-i18n="stat.uptime">Uptime</div>
         <div class="value" id="uptimeValue">--</div>
         <div class="sub" id="uptimeSub"></div>
       </div>
@@ -464,38 +469,38 @@ td.actions { white-space: nowrap; text-align: right; }
   <div class="tab-panel" id="tab-models">
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="margin:0;">Local Models</h3>
-        <button class="btn btn-sm" onclick="loadModels()">Refresh</button>
+        <h3 style="margin:0;" data-i18n="section.localModels">Local Models</h3>
+        <button class="btn btn-sm" onclick="loadModels()" data-i18n="btn.refresh">Refresh</button>
       </div>
       <table id="modelsTable">
         <thead>
           <tr>
-            <th>Filename</th>
-            <th>Size</th>
-            <th>Modified</th>
+            <th data-i18n="col.filename">Filename</th>
+            <th data-i18n="col.size">Size</th>
+            <th data-i18n="col.modified">Modified</th>
             <th></th>
           </tr>
         </thead>
         <tbody id="modelsBody"></tbody>
       </table>
-      <div class="empty-state" id="modelsEmpty" style="display:none;">No GGUF models found in the models directory.</div>
+      <div class="empty-state" id="modelsEmpty" style="display:none;" data-i18n="empty.models">No GGUF models found in the models directory.</div>
     </div>
   </div>
 
   <!-- Download Tab -->
   <div class="tab-panel" id="tab-download">
     <div class="card">
-      <h3>Search HuggingFace</h3>
+      <h3 data-i18n="section.searchHF">Search HuggingFace</h3>
       <div class="search-bar">
-        <input type="text" id="hfSearch" placeholder="Search for GGUF models (e.g. llama-3, qwen2, phi)..." onkeydown="if(event.key==='Enter')searchHF()">
-        <button class="btn btn-primary" onclick="searchHF()">Search</button>
+        <input type="text" id="hfSearch" data-i18n-placeholder="placeholder.searchHF" placeholder="Search for GGUF models (e.g. llama-3, qwen2, phi)..." onkeydown="if(event.key==='Enter')searchHF()">
+        <button class="btn btn-primary" onclick="searchHF()" data-i18n="btn.search">Search</button>
       </div>
       <div id="hfResults"></div>
     </div>
     <div class="card">
-      <h3>Downloads</h3>
+      <h3 data-i18n="section.downloads">Downloads</h3>
       <div id="downloadsList">
-        <div class="empty-state">No active downloads.</div>
+        <div class="empty-state" data-i18n="empty.downloads">No active downloads.</div>
       </div>
     </div>
   </div>
@@ -503,38 +508,38 @@ td.actions { white-space: nowrap; text-align: right; }
   <!-- Config Tab -->
   <div class="tab-panel" id="tab-config">
     <div class="card">
-      <h3>llama-server Configuration</h3>
+      <h3 data-i18n="section.config">llama-server Configuration</h3>
       <div class="form-group">
-        <label>llama-server path</label>
+        <label data-i18n="cfg.serverPath">llama-server path</label>
         <input type="text" id="cfgServerPath">
       </div>
       <div class="form-group">
-        <label>Models directory</label>
+        <label data-i18n="cfg.modelsDir">Models directory</label>
         <input type="text" id="cfgModelsDir">
       </div>
-      <h3 style="margin-top:24px;">Default Server Arguments</h3>
+      <h3 style="margin-top:24px;" data-i18n="section.defaultArgs">Default Server Arguments</h3>
       <div class="form-row">
-        <div class="form-group"><label>Host</label><input type="text" id="cfgHost"></div>
-        <div class="form-group"><label>Port</label><input type="number" id="cfgPort"></div>
+        <div class="form-group"><label data-i18n="cfg.host">Host</label><input type="text" id="cfgHost"></div>
+        <div class="form-group"><label data-i18n="cfg.port">Port</label><input type="number" id="cfgPort"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>GPU Layers (n_gpu_layers)</label><input type="number" id="cfgGpuLayers"></div>
-        <div class="form-group"><label>Context Size (ctx_size)</label><input type="number" id="cfgCtxSize"></div>
+        <div class="form-group"><label data-i18n="cfg.gpuLayers">GPU Layers (n_gpu_layers)</label><input type="number" id="cfgGpuLayers"></div>
+        <div class="form-group"><label data-i18n="cfg.ctxSize">Context Size (ctx_size)</label><input type="number" id="cfgCtxSize"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Batch Size</label><input type="number" id="cfgBatchSize"></div>
-        <div class="form-group"><label>Micro-Batch Size (ubatch_size)</label><input type="number" id="cfgUbatchSize"></div>
+        <div class="form-group"><label data-i18n="cfg.batchSize">Batch Size</label><input type="number" id="cfgBatchSize"></div>
+        <div class="form-group"><label data-i18n="cfg.ubatchSize">Micro-Batch Size (ubatch_size)</label><input type="number" id="cfgUbatchSize"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Threads (0 = auto)</label><input type="number" id="cfgThreads"></div>
-        <div class="form-group"><label>Parallel (slots)</label><input type="number" id="cfgParallel"></div>
+        <div class="form-group"><label data-i18n="cfg.threads">Threads (0 = auto)</label><input type="number" id="cfgThreads"></div>
+        <div class="form-group"><label data-i18n="cfg.parallel">Parallel (slots)</label><input type="number" id="cfgParallel"></div>
       </div>
-      <div class="form-check"><input type="checkbox" id="cfgFlashAttn"><label for="cfgFlashAttn">Flash Attention</label></div>
-      <div class="form-check"><input type="checkbox" id="cfgContBatching"><label for="cfgContBatching">Continuous Batching</label></div>
-      <div class="form-check"><input type="checkbox" id="cfgMetrics"><label for="cfgMetrics">Enable Metrics Endpoint</label></div>
+      <div class="form-check"><input type="checkbox" id="cfgFlashAttn"><label for="cfgFlashAttn" data-i18n="cfg.flashAttn">Flash Attention</label></div>
+      <div class="form-check"><input type="checkbox" id="cfgContBatching"><label for="cfgContBatching" data-i18n="cfg.contBatching">Continuous Batching</label></div>
+      <div class="form-check"><input type="checkbox" id="cfgMetrics"><label for="cfgMetrics" data-i18n="cfg.metrics">Enable Metrics Endpoint</label></div>
       <div class="form-actions">
-        <button class="btn" onclick="loadConfig()">Reset</button>
-        <button class="btn btn-primary" onclick="saveConfig()">Save</button>
+        <button class="btn" onclick="loadConfig()" data-i18n="btn.reset">Reset</button>
+        <button class="btn btn-primary" onclick="saveConfig()" data-i18n="btn.save">Save</button>
       </div>
     </div>
   </div>
@@ -545,10 +550,10 @@ td.actions { white-space: nowrap; text-align: right; }
       <div style="display:flex;align-items:center;gap:8px;">
         <span class="badge badge-dim" id="logCount">0 lines</span>
         <label style="font-size:13px;display:flex;align-items:center;gap:4px;">
-          <input type="checkbox" id="logAutoScroll" checked> Auto-scroll
+          <input type="checkbox" id="logAutoScroll" checked> <span data-i18n="log.autoScroll">Auto-scroll</span>
         </label>
       </div>
-      <button class="btn btn-sm" onclick="clearLogs()">Clear</button>
+      <button class="btn btn-sm" onclick="clearLogs()" data-i18n="btn.clear">Clear</button>
     </div>
     <div class="log-viewer" id="logViewer"></div>
   </div>
@@ -558,12 +563,12 @@ td.actions { white-space: nowrap; text-align: right; }
 <!-- Confirm Delete Modal -->
 <div class="modal-overlay" id="deleteModal">
   <div class="modal">
-    <h3>Delete Model</h3>
-    <p>Are you sure you want to delete <strong id="deleteModelName"></strong>?</p>
-    <p style="font-size:13px;color:var(--text-dim);margin-top:8px;">This action cannot be undone.</p>
+    <h3 data-i18n="modal.deleteTitle">Delete Model</h3>
+    <p><span data-i18n="modal.deleteConfirm">Are you sure you want to delete</span> <strong id="deleteModelName"></strong>?</p>
+    <p style="font-size:13px;color:var(--text-dim);margin-top:8px;" data-i18n="modal.deleteWarn">This action cannot be undone.</p>
     <div class="modal-actions">
-      <button class="btn" onclick="closeModal('deleteModal')">Cancel</button>
-      <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+      <button class="btn" onclick="closeModal('deleteModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()" data-i18n="btn.delete">Delete</button>
     </div>
   </div>
 </div>
@@ -571,10 +576,10 @@ td.actions { white-space: nowrap; text-align: right; }
 <!-- Repo Files Modal -->
 <div class="modal-overlay" id="repoFilesModal">
   <div class="modal" style="width:620px;">
-    <h3>Select File &mdash; <span id="repoFilesTitle"></span></h3>
+    <h3><span data-i18n="modal.selectFile">Select File</span> &mdash; <span id="repoFilesTitle"></span></h3>
     <div id="repoFilesList" class="file-list"></div>
     <div class="modal-actions">
-      <button class="btn" onclick="closeModal('repoFilesModal')">Close</button>
+      <button class="btn" onclick="closeModal('repoFilesModal')" data-i18n="btn.close">Close</button>
     </div>
   </div>
 </div>
@@ -601,6 +606,96 @@ const THEMES = {
     '--orange':'#d29922','--orange-bg':'#2a1f05',
   },
 };
+
+/* ===== i18n ===== */
+const I18N = {
+  en: {
+    'tab.dashboard':'Dashboard','tab.models':'Models','tab.download':'Download','tab.config':'Config','tab.logs':'Logs',
+    'section.server':'Server','section.gpu':'GPU','section.cpuMem':'CPU / Memory','section.storage':'Storage',
+    'section.localModels':'Local Models','section.searchHF':'Search HuggingFace','section.downloads':'Downloads',
+    'section.config':'llama-server Configuration','section.defaultArgs':'Default Server Arguments',
+    'stat.vram':'VRAM Usage','stat.gpuTemp':'GPU Temp','stat.gpuUtil':'GPU Utilization','stat.power':'Power',
+    'stat.cpu':'CPU Usage','stat.ram':'RAM Usage','stat.health':'Health','stat.uptime':'Uptime',
+    'btn.start':'Start','btn.stop':'Stop','btn.restart':'Restart','btn.refresh':'Refresh',
+    'btn.search':'Search','btn.save':'Save','btn.reset':'Reset','btn.clear':'Clear',
+    'btn.cancel':'Cancel','btn.delete':'Delete','btn.close':'Close',
+    'select.model':'Select a model...','badge.stopped':'Stopped','badge.running':'Running','badge.loading':'Loading...',
+    'col.filename':'Filename','col.size':'Size','col.modified':'Modified',
+    'cfg.serverPath':'llama-server path','cfg.modelsDir':'Models directory',
+    'cfg.host':'Host','cfg.port':'Port','cfg.gpuLayers':'GPU Layers (n_gpu_layers)','cfg.ctxSize':'Context Size (ctx_size)',
+    'cfg.batchSize':'Batch Size','cfg.ubatchSize':'Micro-Batch Size (ubatch_size)',
+    'cfg.threads':'Threads (0 = auto)','cfg.parallel':'Parallel (slots)',
+    'cfg.flashAttn':'Flash Attention','cfg.contBatching':'Continuous Batching','cfg.metrics':'Enable Metrics Endpoint',
+    'log.autoScroll':'Auto-scroll',
+    'modal.deleteTitle':'Delete Model','modal.deleteConfirm':'Are you sure you want to delete',
+    'modal.deleteWarn':'This action cannot be undone.','modal.selectFile':'Select File',
+    'empty.models':'No GGUF models found in the models directory.',
+    'empty.downloads':'No active downloads.','empty.noResults':'No results found.',
+    'empty.noGguf':'No GGUF files found.','empty.searching':'Searching...','empty.loadingFiles':'Loading files...',
+    'placeholder.searchHF':'Search for GGUF models (e.g. llama-3, qwen2, phi)...',
+    'toast.deleted':'Deleted','toast.configSaved':'Configuration saved',
+    'toast.serverStarting':'Server starting...','toast.serverStopped':'Server stopped',
+    'toast.serverRestarting':'Server restarting...','toast.selectModel':'Select a model first',
+    'toast.downloadStarted':'Download started:',
+    'status.healthy':'Healthy','status.model':'Model','status.limit':'Limit',
+    'status.available':'available','status.free':'free','status.used':'used',
+    'status.idle':'idle','status.busy':'busy',
+  },
+  zh: {
+    'tab.dashboard':'仪表盘','tab.models':'模型','tab.download':'下载','tab.config':'配置','tab.logs':'日志',
+    'section.server':'服务器','section.gpu':'GPU','section.cpuMem':'CPU / 内存','section.storage':'存储',
+    'section.localModels':'本地模型','section.searchHF':'搜索 HuggingFace','section.downloads':'下载列表',
+    'section.config':'llama-server 配置','section.defaultArgs':'默认服务器参数',
+    'stat.vram':'显存占用','stat.gpuTemp':'GPU 温度','stat.gpuUtil':'GPU 利用率','stat.power':'功耗',
+    'stat.cpu':'CPU 占用','stat.ram':'内存占用','stat.health':'健康状态','stat.uptime':'运行时间',
+    'btn.start':'启动','btn.stop':'停止','btn.restart':'重启','btn.refresh':'刷新',
+    'btn.search':'搜索','btn.save':'保存','btn.reset':'重置','btn.clear':'清空',
+    'btn.cancel':'取消','btn.delete':'删除','btn.close':'关闭',
+    'select.model':'选择模型...','badge.stopped':'已停止','badge.running':'运行中','badge.loading':'加载中...',
+    'col.filename':'文件名','col.size':'大小','col.modified':'修改时间',
+    'cfg.serverPath':'llama-server 路径','cfg.modelsDir':'模型目录',
+    'cfg.host':'主机','cfg.port':'端口','cfg.gpuLayers':'GPU 层数 (n_gpu_layers)','cfg.ctxSize':'上下文大小 (ctx_size)',
+    'cfg.batchSize':'批处理大小','cfg.ubatchSize':'微批处理大小 (ubatch_size)',
+    'cfg.threads':'线程数 (0 = 自动)','cfg.parallel':'并行数 (slots)',
+    'cfg.flashAttn':'Flash Attention','cfg.contBatching':'连续批处理','cfg.metrics':'启用指标端点',
+    'log.autoScroll':'自动滚动',
+    'modal.deleteTitle':'删除模型','modal.deleteConfirm':'确定要删除',
+    'modal.deleteWarn':'此操作不可撤销。','modal.selectFile':'选择文件',
+    'empty.models':'模型目录中没有找到 GGUF 模型。',
+    'empty.downloads':'暂无下载任务。','empty.noResults':'未找到结果。',
+    'empty.noGguf':'未找到 GGUF 文件。','empty.searching':'搜索中...','empty.loadingFiles':'加载文件列表...',
+    'placeholder.searchHF':'搜索 GGUF 模型（如 llama-3、qwen2、phi）...',
+    'toast.deleted':'已删除','toast.configSaved':'配置已保存',
+    'toast.serverStarting':'服务器启动中...','toast.serverStopped':'服务器已停止',
+    'toast.serverRestarting':'服务器重启中...','toast.selectModel':'请先选择模型',
+    'toast.downloadStarted':'开始下载：',
+    'status.healthy':'健康','status.model':'模型','status.limit':'上限',
+    'status.available':'可用','status.free':'空闲','status.used':'已用',
+    'status.idle':'空闲','status.busy':'繁忙',
+  },
+};
+
+let currentLang = localStorage.getItem('llama-deck-lang') || 'en';
+
+function t(key, fallback) {
+  return I18N[currentLang]?.[key] || I18N.en[key] || fallback || key;
+}
+
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+  document.getElementById('langLabel').textContent = currentLang.toUpperCase();
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('llama-deck-lang', lang);
+  applyI18n();
+}
+
+function toggleLang() {
+  setLang(currentLang === 'en' ? 'zh' : 'en');
+}
 
 let currentTheme = localStorage.getItem('llama-deck-theme') || 'light';
 
@@ -689,19 +784,19 @@ function updateServerUI(server, health) {
 
   if (server.running) {
     const hStatus = health?.status || 'unknown';
-    if (hStatus === 'ok') { badge.className = 'badge badge-ok'; badge.textContent = 'Running'; }
-    else if (hStatus === 'loading') { badge.className = 'badge badge-warn'; badge.textContent = 'Loading...'; }
+    if (hStatus === 'ok') { badge.className = 'badge badge-ok'; badge.textContent = t('badge.running'); }
+    else if (hStatus === 'loading') { badge.className = 'badge badge-warn'; badge.textContent = t('badge.loading'); }
     else { badge.className = 'badge badge-warn'; badge.textContent = hStatus; }
     btnStart.disabled = true; btnStop.disabled = false; btnRestart.disabled = false;
-    info.textContent = 'Model: ' + (server.model || 'unknown') + ' | PID: ' + (server.pid || '?');
-    document.getElementById('healthValue').textContent = hStatus === 'ok' ? 'Healthy' : hStatus;
-    document.getElementById('healthSub').textContent = health?.slots_idle != null ? health.slots_idle + ' idle / ' + health.slots_processing + ' busy' : '';
+    info.textContent = t('status.model') + ': ' + (server.model || 'unknown') + ' | PID: ' + (server.pid || '?');
+    document.getElementById('healthValue').textContent = hStatus === 'ok' ? t('status.healthy') : hStatus;
+    document.getElementById('healthSub').textContent = health?.slots_idle != null ? health.slots_idle + ' ' + t('status.idle') + ' / ' + health.slots_processing + ' ' + t('status.busy') : '';
     if (server.uptime != null) {
       document.getElementById('uptimeValue').textContent = formatDuration(server.uptime);
       document.getElementById('uptimeSub').textContent = 'PID ' + server.pid;
     }
   } else {
-    badge.className = 'badge badge-dim'; badge.textContent = 'Stopped';
+    badge.className = 'badge badge-dim'; badge.textContent = t('badge.stopped');
     btnStart.disabled = false; btnStop.disabled = true; btnRestart.disabled = true;
     info.textContent = '';
     document.getElementById('healthValue').textContent = '--';
@@ -738,7 +833,7 @@ function updateGpuUI(gpu) {
   }
   if (gpu.power_draw_w != null) {
     document.getElementById('powerValue').textContent = gpu.power_draw_w.toFixed(0) + ' W';
-    document.getElementById('powerSub').textContent = gpu.power_limit_w ? 'Limit: ' + gpu.power_limit_w.toFixed(0) + ' W' : '';
+    document.getElementById('powerSub').textContent = gpu.power_limit_w ? t('status.limit') + ': ' + gpu.power_limit_w.toFixed(0) + ' W' : '';
   }
 }
 
@@ -761,7 +856,7 @@ function updateRamUI(ram) {
   const bar = document.getElementById('ramBar');
   bar.querySelector('.fill').style.width = ram.percent + '%';
   bar.className = 'progress-bar' + (ram.percent > 90 ? ' danger' : ram.percent > 70 ? ' warn' : '');
-  document.getElementById('ramSub').textContent = (ram.available_mb / 1024).toFixed(1) + ' GB available';
+  document.getElementById('ramSub').textContent = (ram.available_mb / 1024).toFixed(1) + ' GB ' + t('status.available');
 }
 
 function updateDiskUI(disks) {
@@ -774,7 +869,7 @@ function updateDiskUI(disks) {
         <div class="label">${esc(d.path)}</div>
         <div class="value">${d.used_gb} / ${d.total_gb} GB</div>
         <div class="progress-bar${cls}"><div class="fill" style="width:${d.percent}%"></div></div>
-        <div class="sub">${d.free_gb} GB free (${d.percent}% used)</div>
+        <div class="sub">${d.free_gb} GB ${t('status.free')} (${d.percent}% ${t('status.used')})</div>
       </div>`;
   }).join('');
 }
@@ -786,7 +881,7 @@ async function loadModels() {
     renderModels(data.models);
     const sel = document.getElementById('startModel');
     const prev = sel.value;
-    sel.innerHTML = '<option value="">Select a model...</option>';
+    sel.innerHTML = '<option value="">' + t('select.model') + '</option>';
     for (const m of data.models) {
       const opt = document.createElement('option');
       opt.value = m.filename;
@@ -823,26 +918,26 @@ async function confirmDelete() {
   closeModal('deleteModal');
   try {
     await api('/api/models/' + encodeURIComponent(pendingDelete), { method: 'DELETE' });
-    showToast('Deleted ' + pendingDelete); pendingDelete = null; loadModels();
+    showToast(t('toast.deleted') + ' ' + pendingDelete); pendingDelete = null; loadModels();
   } catch (e) { /* handled */ }
 }
 
 /* ===== Server Controls ===== */
 async function startServer() {
   const model = document.getElementById('startModel').value;
-  if (!model) { showToast('Select a model first', 'error'); return; }
+  if (!model) { showToast(t('toast.selectModel'), 'error'); return; }
   try {
     await api('/api/server/start', { method: 'POST', body: JSON.stringify({ model }) });
-    showToast('Server starting...'); setTimeout(loadStatus, 1000);
+    showToast(t('toast.serverStarting')); setTimeout(loadStatus, 1000);
   } catch (e) { /* handled */ }
 }
 
 async function stopServer() {
-  try { await api('/api/server/stop', { method: 'POST' }); showToast('Server stopped'); loadStatus(); } catch (e) {}
+  try { await api('/api/server/stop', { method: 'POST' }); showToast(t('toast.serverStopped')); loadStatus(); } catch (e) {}
 }
 
 async function restartServer() {
-  try { await api('/api/server/restart', { method: 'POST', body: '{}' }); showToast('Server restarting...'); setTimeout(loadStatus, 1000); } catch (e) {}
+  try { await api('/api/server/restart', { method: 'POST', body: '{}' }); showToast(t('toast.serverRestarting')); setTimeout(loadStatus, 1000); } catch (e) {}
 }
 
 /* ===== HuggingFace Search ===== */
@@ -850,10 +945,10 @@ async function searchHF() {
   const q = document.getElementById('hfSearch').value.trim();
   if (!q) return;
   const container = document.getElementById('hfResults');
-  container.innerHTML = '<div class="empty-state">Searching...</div>';
+  container.innerHTML = '<div class="empty-state">' + t('empty.searching') + '</div>';
   try {
     const data = await api('/api/models/search?q=' + encodeURIComponent(q));
-    if (!data.results.length) { container.innerHTML = '<div class="empty-state">No results found.</div>'; return; }
+    if (!data.results.length) { container.innerHTML = '<div class="empty-state">' + t('empty.noResults') + '</div>'; return; }
     container.innerHTML = data.results.map(r => `
       <div class="hf-result" onclick="showRepoFiles('${esc(r.repo_id)}')">
         <div class="repo-name">${esc(r.repo_id)}</div>
@@ -869,11 +964,11 @@ async function searchHF() {
 
 async function showRepoFiles(repoId) {
   document.getElementById('repoFilesTitle').textContent = repoId;
-  document.getElementById('repoFilesList').innerHTML = '<div class="empty-state">Loading files...</div>';
+  document.getElementById('repoFilesList').innerHTML = '<div class="empty-state">' + t('empty.loadingFiles') + '</div>';
   openModal('repoFilesModal');
   try {
     const data = await api('/api/models/files?repo=' + encodeURIComponent(repoId));
-    if (!data.files.length) { document.getElementById('repoFilesList').innerHTML = '<div class="empty-state">No GGUF files found.</div>'; return; }
+    if (!data.files.length) { document.getElementById('repoFilesList').innerHTML = '<div class="empty-state">' + t('empty.noGguf') + '</div>'; return; }
     document.getElementById('repoFilesList').innerHTML = data.files.map(f => `
       <div class="file-item">
         <span class="file-name">${esc(f.filename)}</span>
@@ -888,7 +983,7 @@ async function startDownload(repoId, filename) {
   closeModal('repoFilesModal');
   try {
     await api('/api/models/download', { method: 'POST', body: JSON.stringify({ repo_id: repoId, filename }) });
-    showToast('Download started: ' + filename, 'info'); switchTab('download'); loadDownloads();
+    showToast(t('toast.downloadStarted') + ' ' + filename, 'info'); switchTab('download'); loadDownloads();
   } catch (e) {}
 }
 
@@ -898,7 +993,7 @@ async function loadDownloads() {
 
 function renderDownloads(downloads) {
   const container = document.getElementById('downloadsList');
-  if (!downloads.length) { container.innerHTML = '<div class="empty-state">No active downloads.</div>'; return; }
+  if (!downloads.length) { container.innerHTML = '<div class="empty-state">' + t('empty.downloads') + '</div>'; return; }
   container.innerHTML = downloads.map(d => {
     const pct = (d.progress * 100).toFixed(0);
     let sc = d.status === 'completed' ? 'badge-ok' : d.status === 'failed' ? 'badge-error' : d.status === 'cancelled' ? 'badge-warn' : 'badge-dim';
@@ -949,7 +1044,7 @@ async function saveConfig() {
       metrics: document.getElementById('cfgMetrics').checked,
     },
   };
-  try { await api('/api/config', { method: 'POST', body: JSON.stringify(payload) }); showToast('Configuration saved'); } catch (e) {}
+  try { await api('/api/config', { method: 'POST', body: JSON.stringify(payload) }); showToast(t('toast.configSaved')); } catch (e) {}
 }
 
 /* ===== Logs ===== */
@@ -1030,6 +1125,7 @@ function startStatusPolling() {
 /* ===== Init ===== */
 window.addEventListener('load', async () => {
   setTheme(currentTheme);
+  applyI18n();
   const savedTab = localStorage.getItem('llama-deck-tab');
   if (savedTab) switchTab(savedTab);
   await loadStatus();
