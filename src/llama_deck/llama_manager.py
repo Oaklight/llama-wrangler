@@ -1,14 +1,15 @@
 """llama-server process lifecycle management."""
 
 import asyncio
+import json
 import logging
 import signal
 import time
+import urllib.error
+import urllib.request
 from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
-
-import httpx
 
 from llama_deck.config import DeckConfig, ServerArgs
 
@@ -195,21 +196,22 @@ class LlamaManager:
             return {"status": "not_running"}
 
         args = self.config.default_args
-        url = f"http://{args.host}:{args.port}/health"
-        # For health check, always use localhost
-        if args.host == "0.0.0.0":
-            url = f"http://127.0.0.1:{args.port}/health"
+        host = "127.0.0.1" if args.host == "0.0.0.0" else args.host
+        url = f"http://{host}:{args.port}/health"
 
-        try:
-            async with httpx.AsyncClient(timeout=5.0) as client:
-                resp = await client.get(url)
-                if resp.status_code == 200:
-                    return resp.json()
-                return {"status": "error", "http_status": resp.status_code}
-        except httpx.ConnectError:
-            return {"status": "loading"}
-        except Exception as e:
-            return {"status": "error", "detail": str(e)}
+        def _check() -> dict:
+            try:
+                req = urllib.request.Request(url)
+                with urllib.request.urlopen(req, timeout=5) as resp:
+                    if resp.status == 200:
+                        return json.loads(resp.read())
+                    return {"status": "error", "http_status": resp.status}
+            except urllib.error.URLError:
+                return {"status": "loading"}
+            except Exception as e:
+                return {"status": "error", "detail": str(e)}
+
+        return await asyncio.to_thread(_check)
 
     def status(self) -> dict:
         """Get current server status summary."""

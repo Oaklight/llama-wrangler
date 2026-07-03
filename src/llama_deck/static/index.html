@@ -39,6 +39,10 @@ body {
   min-height: 100vh;
 }
 
+/* ===== SVG Icons ===== */
+.icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -2px; }
+.icon-lg { width: 20px; height: 20px; }
+
 /* ===== Header ===== */
 .header {
   display: flex;
@@ -115,6 +119,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 12px;
+  margin-bottom: 16px;
 }
 .stat-card {
   background: var(--bg);
@@ -125,6 +130,9 @@ body {
 .stat-card .label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
 .stat-card .value { font-size: 24px; font-weight: 600; margin-top: 4px; }
 .stat-card .sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+/* ===== Section headers ===== */
+.section-label { font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; margin-top: 8px; }
 
 /* ===== Progress bar ===== */
 .progress-bar {
@@ -196,11 +204,7 @@ td.actions { white-space: nowrap; text-align: right; }
 .form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 
 /* ===== Search ===== */
-.search-bar {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
+.search-bar { display: flex; gap: 8px; margin-bottom: 16px; }
 .search-bar input {
   flex: 1;
   padding: 8px 12px;
@@ -290,13 +294,17 @@ td.actions { white-space: nowrap; text-align: right; }
 /* ===== Theme Toggle ===== */
 .theme-toggle {
   background: none;
-  border: none;
+  border: 1px solid var(--border);
   cursor: pointer;
-  font-size: 18px;
-  padding: 4px;
+  padding: 6px;
   border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  transition: background 0.15s, color 0.15s;
 }
-.theme-toggle:hover { background: var(--bg-hover); }
+.theme-toggle:hover { background: var(--bg-hover); color: var(--text); }
 
 /* ===== HF Results ===== */
 .hf-result {
@@ -313,7 +321,7 @@ td.actions { white-space: nowrap; text-align: right; }
 .hf-result .repo-meta { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
 .hf-result .repo-meta span { margin-right: 16px; }
 
-/* ===== File picker (repo files) ===== */
+/* ===== File picker ===== */
 .file-list { margin-top: 12px; }
 .file-item {
   display: flex;
@@ -341,6 +349,14 @@ td.actions { white-space: nowrap; text-align: right; }
 </head>
 <body>
 
+<!-- SVG sprite (hidden) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="ico-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+  <symbol id="ico-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+  <symbol id="ico-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+  <symbol id="ico-heart" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+</svg>
+
 <!-- Header -->
 <div class="header">
   <div class="header-left">
@@ -348,7 +364,9 @@ td.actions { white-space: nowrap; text-align: right; }
     <span class="badge badge-dim" id="serverBadge">Stopped</span>
   </div>
   <div class="header-right">
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">🌙</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">
+      <svg class="icon icon-lg"><use id="themeBtnIcon" href="#ico-moon"/></svg>
+    </button>
   </div>
 </div>
 
@@ -380,8 +398,9 @@ td.actions { white-space: nowrap; text-align: right; }
       <div id="serverInfo" style="margin-top:12px;font-size:13px;color:var(--text-dim);"></div>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="stat-grid" id="statsGrid">
+    <!-- GPU Stats -->
+    <div class="section-label" id="gpuSectionLabel">GPU</div>
+    <div class="stat-grid" id="gpuGrid">
       <div class="stat-card">
         <div class="label">VRAM Usage</div>
         <div class="value" id="vramValue">--</div>
@@ -389,8 +408,8 @@ td.actions { white-space: nowrap; text-align: right; }
       </div>
       <div class="stat-card">
         <div class="label">GPU Temp</div>
-        <div class="value" id="tempValue">--</div>
-        <div class="sub" id="tempSub"></div>
+        <div class="value" id="gpuTempValue">--</div>
+        <div class="sub" id="gpuTempSub"></div>
       </div>
       <div class="stat-card">
         <div class="label">GPU Utilization</div>
@@ -402,6 +421,32 @@ td.actions { white-space: nowrap; text-align: right; }
         <div class="value" id="powerValue">--</div>
         <div class="sub" id="powerSub"></div>
       </div>
+    </div>
+
+    <!-- CPU / RAM Stats -->
+    <div class="section-label">CPU / Memory</div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="label">CPU Usage</div>
+        <div class="value" id="cpuValue">--</div>
+        <div class="progress-bar" id="cpuBar"><div class="fill" style="width:0%"></div></div>
+        <div class="sub" id="cpuSub"></div>
+      </div>
+      <div class="stat-card">
+        <div class="label">RAM Usage</div>
+        <div class="value" id="ramValue">--</div>
+        <div class="progress-bar" id="ramBar"><div class="fill" style="width:0%"></div></div>
+        <div class="sub" id="ramSub"></div>
+      </div>
+    </div>
+
+    <!-- Disk Stats -->
+    <div class="section-label">Storage</div>
+    <div class="stat-grid" id="diskGrid"></div>
+
+    <!-- Server Health / Uptime -->
+    <div class="section-label">Server</div>
+    <div class="stat-grid">
       <div class="stat-card">
         <div class="label">Health</div>
         <div class="value" id="healthValue">--</div>
@@ -447,8 +492,6 @@ td.actions { white-space: nowrap; text-align: right; }
       </div>
       <div id="hfResults"></div>
     </div>
-
-    <!-- Active Downloads -->
     <div class="card">
       <h3>Downloads</h3>
       <div id="downloadsList">
@@ -469,60 +512,26 @@ td.actions { white-space: nowrap; text-align: right; }
         <label>Models directory</label>
         <input type="text" id="cfgModelsDir">
       </div>
-
       <h3 style="margin-top:24px;">Default Server Arguments</h3>
       <div class="form-row">
-        <div class="form-group">
-          <label>Host</label>
-          <input type="text" id="cfgHost">
-        </div>
-        <div class="form-group">
-          <label>Port</label>
-          <input type="number" id="cfgPort">
-        </div>
+        <div class="form-group"><label>Host</label><input type="text" id="cfgHost"></div>
+        <div class="form-group"><label>Port</label><input type="number" id="cfgPort"></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>GPU Layers (n_gpu_layers)</label>
-          <input type="number" id="cfgGpuLayers">
-        </div>
-        <div class="form-group">
-          <label>Context Size (ctx_size)</label>
-          <input type="number" id="cfgCtxSize">
-        </div>
+        <div class="form-group"><label>GPU Layers (n_gpu_layers)</label><input type="number" id="cfgGpuLayers"></div>
+        <div class="form-group"><label>Context Size (ctx_size)</label><input type="number" id="cfgCtxSize"></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Batch Size</label>
-          <input type="number" id="cfgBatchSize">
-        </div>
-        <div class="form-group">
-          <label>Micro-Batch Size (ubatch_size)</label>
-          <input type="number" id="cfgUbatchSize">
-        </div>
+        <div class="form-group"><label>Batch Size</label><input type="number" id="cfgBatchSize"></div>
+        <div class="form-group"><label>Micro-Batch Size (ubatch_size)</label><input type="number" id="cfgUbatchSize"></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Threads (0 = auto)</label>
-          <input type="number" id="cfgThreads">
-        </div>
-        <div class="form-group">
-          <label>Parallel (slots)</label>
-          <input type="number" id="cfgParallel">
-        </div>
+        <div class="form-group"><label>Threads (0 = auto)</label><input type="number" id="cfgThreads"></div>
+        <div class="form-group"><label>Parallel (slots)</label><input type="number" id="cfgParallel"></div>
       </div>
-      <div class="form-check">
-        <input type="checkbox" id="cfgFlashAttn">
-        <label for="cfgFlashAttn">Flash Attention</label>
-      </div>
-      <div class="form-check">
-        <input type="checkbox" id="cfgContBatching">
-        <label for="cfgContBatching">Continuous Batching</label>
-      </div>
-      <div class="form-check">
-        <input type="checkbox" id="cfgMetrics">
-        <label for="cfgMetrics">Enable Metrics Endpoint</label>
-      </div>
+      <div class="form-check"><input type="checkbox" id="cfgFlashAttn"><label for="cfgFlashAttn">Flash Attention</label></div>
+      <div class="form-check"><input type="checkbox" id="cfgContBatching"><label for="cfgContBatching">Continuous Batching</label></div>
+      <div class="form-check"><input type="checkbox" id="cfgMetrics"><label for="cfgMetrics">Enable Metrics Endpoint</label></div>
       <div class="form-actions">
         <button class="btn" onclick="loadConfig()">Reset</button>
         <button class="btn btn-primary" onclick="saveConfig()">Save</button>
@@ -562,7 +571,7 @@ td.actions { white-space: nowrap; text-align: right; }
 <!-- Repo Files Modal -->
 <div class="modal-overlay" id="repoFilesModal">
   <div class="modal" style="width:620px;">
-    <h3>Select File — <span id="repoFilesTitle"></span></h3>
+    <h3>Select File &mdash; <span id="repoFilesTitle"></span></h3>
     <div id="repoFilesList" class="file-list"></div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('repoFilesModal')">Close</button>
@@ -602,7 +611,7 @@ function setTheme(name) {
   for (const [k, v] of Object.entries(vars)) root.style.setProperty(k, v);
   currentTheme = name;
   localStorage.setItem('llama-deck-theme', name);
-  document.getElementById('themeBtn').textContent = name === 'dark' ? '☀️' : '🌙';
+  document.getElementById('themeBtnIcon').setAttribute('href', name === 'dark' ? '#ico-sun' : '#ico-moon');
 }
 
 function toggleTheme() {
@@ -625,8 +634,6 @@ function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
   currentTab = name;
   localStorage.setItem('llama-deck-tab', name);
-
-  // Load tab-specific data
   if (name === 'models') loadModels();
   if (name === 'config') loadConfig();
   if (name === 'download') loadDownloads();
@@ -643,35 +650,22 @@ function showToast(message, type = 'success') {
 }
 
 /* ===== Modal ===== */
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.classList.remove('open');
-  });
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', (e) => { if (e.target === o) o.classList.remove('open'); });
 });
 
-/* ===== API Helpers ===== */
+/* ===== API ===== */
 async function api(path, opts = {}) {
   try {
-    const resp = await fetch(path, {
-      headers: { 'Content-Type': 'application/json', ...opts.headers },
-      ...opts,
-    });
+    const resp = await fetch(path, { headers: { 'Content-Type': 'application/json', ...opts.headers }, ...opts });
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({ message: resp.statusText }));
       throw new Error(err.message || err.detail || resp.statusText);
     }
     return await resp.json();
-  } catch (e) {
-    showToast(e.message, 'error');
-    throw e;
-  }
+  } catch (e) { showToast(e.message, 'error'); throw e; }
 }
 
 /* ===== Dashboard ===== */
@@ -680,7 +674,10 @@ async function loadStatus() {
     const data = await api('/api/status');
     updateServerUI(data.server, data.health);
     if (data.gpu) updateGpuUI(data.gpu);
-  } catch (e) { /* handled by api() */ }
+    if (data.cpu) updateCpuUI(data.cpu);
+    if (data.ram) updateRamUI(data.ram);
+    if (data.disks) updateDiskUI(data.disks);
+  } catch (e) { /* handled */ }
 }
 
 function updateServerUI(server, health) {
@@ -692,22 +689,11 @@ function updateServerUI(server, health) {
 
   if (server.running) {
     const hStatus = health?.status || 'unknown';
-    if (hStatus === 'ok') {
-      badge.className = 'badge badge-ok';
-      badge.textContent = 'Running';
-    } else if (hStatus === 'loading') {
-      badge.className = 'badge badge-warn';
-      badge.textContent = 'Loading...';
-    } else {
-      badge.className = 'badge badge-warn';
-      badge.textContent = hStatus;
-    }
-    btnStart.disabled = true;
-    btnStop.disabled = false;
-    btnRestart.disabled = false;
+    if (hStatus === 'ok') { badge.className = 'badge badge-ok'; badge.textContent = 'Running'; }
+    else if (hStatus === 'loading') { badge.className = 'badge badge-warn'; badge.textContent = 'Loading...'; }
+    else { badge.className = 'badge badge-warn'; badge.textContent = hStatus; }
+    btnStart.disabled = true; btnStop.disabled = false; btnRestart.disabled = false;
     info.textContent = 'Model: ' + (server.model || 'unknown') + ' | PID: ' + (server.pid || '?');
-
-    // Update health & uptime cards
     document.getElementById('healthValue').textContent = hStatus === 'ok' ? 'Healthy' : hStatus;
     document.getElementById('healthSub').textContent = health?.slots_idle != null ? health.slots_idle + ' idle / ' + health.slots_processing + ' busy' : '';
     if (server.uptime != null) {
@@ -715,11 +701,8 @@ function updateServerUI(server, health) {
       document.getElementById('uptimeSub').textContent = 'PID ' + server.pid;
     }
   } else {
-    badge.className = 'badge badge-dim';
-    badge.textContent = 'Stopped';
-    btnStart.disabled = false;
-    btnStop.disabled = true;
-    btnRestart.disabled = true;
+    badge.className = 'badge badge-dim'; badge.textContent = 'Stopped';
+    btnStart.disabled = false; btnStop.disabled = true; btnRestart.disabled = true;
     info.textContent = '';
     document.getElementById('healthValue').textContent = '--';
     document.getElementById('healthSub').textContent = '';
@@ -729,11 +712,15 @@ function updateServerUI(server, health) {
 }
 
 function updateGpuUI(gpu) {
-  if (!gpu) return;
+  if (!gpu) {
+    document.getElementById('gpuGrid').style.display = 'none';
+    document.getElementById('gpuSectionLabel').style.display = 'none';
+    return;
+  }
+  document.getElementById('gpuGrid').style.display = '';
+  document.getElementById('gpuSectionLabel').style.display = '';
 
-  // VRAM
-  const used = gpu.vram_used_mb;
-  const total = gpu.vram_total_mb;
+  const used = gpu.vram_used_mb, total = gpu.vram_total_mb;
   if (used != null && total != null) {
     const pct = (used / total * 100).toFixed(0);
     document.getElementById('vramValue').textContent = (used / 1024).toFixed(1) + ' / ' + (total / 1024).toFixed(1) + ' GB';
@@ -741,24 +728,55 @@ function updateGpuUI(gpu) {
     bar.querySelector('.fill').style.width = pct + '%';
     bar.className = 'progress-bar' + (pct > 90 ? ' danger' : pct > 70 ? ' warn' : '');
   }
-
-  // Temp
   if (gpu.temperature_c != null) {
-    document.getElementById('tempValue').textContent = gpu.temperature_c + '°C';
-    document.getElementById('tempSub').textContent = gpu.name || '';
+    document.getElementById('gpuTempValue').textContent = gpu.temperature_c + '°C';
+    document.getElementById('gpuTempSub').textContent = gpu.name || '';
   }
-
-  // Utilization
   if (gpu.utilization_pct != null) {
     document.getElementById('utilValue').textContent = gpu.utilization_pct + '%';
     document.getElementById('utilFill').style.width = gpu.utilization_pct + '%';
   }
-
-  // Power
   if (gpu.power_draw_w != null) {
     document.getElementById('powerValue').textContent = gpu.power_draw_w.toFixed(0) + ' W';
     document.getElementById('powerSub').textContent = gpu.power_limit_w ? 'Limit: ' + gpu.power_limit_w.toFixed(0) + ' W' : '';
   }
+}
+
+function updateCpuUI(cpu) {
+  if (!cpu) return;
+  document.getElementById('cpuValue').textContent = cpu.percent + '%';
+  const bar = document.getElementById('cpuBar');
+  bar.querySelector('.fill').style.width = cpu.percent + '%';
+  bar.className = 'progress-bar' + (cpu.percent > 90 ? ' danger' : cpu.percent > 70 ? ' warn' : '');
+  const parts = [];
+  if (cpu.count_physical) parts.push(cpu.count_physical + 'C/' + cpu.count_logical + 'T');
+  if (cpu.freq_mhz) parts.push(cpu.freq_mhz + ' MHz');
+  if (cpu.load_avg) parts.push('Load: ' + cpu.load_avg.join(', '));
+  document.getElementById('cpuSub').textContent = parts.join(' | ');
+}
+
+function updateRamUI(ram) {
+  if (!ram) return;
+  document.getElementById('ramValue').textContent = (ram.used_mb / 1024).toFixed(1) + ' / ' + (ram.total_mb / 1024).toFixed(1) + ' GB';
+  const bar = document.getElementById('ramBar');
+  bar.querySelector('.fill').style.width = ram.percent + '%';
+  bar.className = 'progress-bar' + (ram.percent > 90 ? ' danger' : ram.percent > 70 ? ' warn' : '');
+  document.getElementById('ramSub').textContent = (ram.available_mb / 1024).toFixed(1) + ' GB available';
+}
+
+function updateDiskUI(disks) {
+  const grid = document.getElementById('diskGrid');
+  if (!disks || !disks.length) { grid.innerHTML = ''; return; }
+  grid.innerHTML = disks.map(d => {
+    const cls = d.percent > 90 ? ' danger' : d.percent > 70 ? ' warn' : '';
+    return `
+      <div class="stat-card">
+        <div class="label">${esc(d.path)}</div>
+        <div class="value">${d.used_gb} / ${d.total_gb} GB</div>
+        <div class="progress-bar${cls}"><div class="fill" style="width:${d.percent}%"></div></div>
+        <div class="sub">${d.free_gb} GB free (${d.percent}% used)</div>
+      </div>`;
+  }).join('');
 }
 
 /* ===== Models ===== */
@@ -766,8 +784,6 @@ async function loadModels() {
   try {
     const data = await api('/api/models');
     renderModels(data.models);
-
-    // Also update the start model dropdown
     const sel = document.getElementById('startModel');
     const prev = sel.value;
     sel.innerHTML = '<option value="">Select a model...</option>';
@@ -784,22 +800,14 @@ async function loadModels() {
 function renderModels(models) {
   const body = document.getElementById('modelsBody');
   const empty = document.getElementById('modelsEmpty');
-
-  if (!models.length) {
-    body.innerHTML = '';
-    empty.style.display = '';
-    return;
-  }
-
+  if (!models.length) { body.innerHTML = ''; empty.style.display = ''; return; }
   empty.style.display = 'none';
   body.innerHTML = models.map(m => `
     <tr>
       <td><code>${esc(m.filename)}</code></td>
       <td>${esc(m.size_human)}</td>
       <td>${new Date(m.modified * 1000).toLocaleDateString()}</td>
-      <td class="actions">
-        <button class="btn btn-sm btn-danger" onclick="askDelete('${esc(m.filename)}')">Delete</button>
-      </td>
+      <td class="actions"><button class="btn btn-sm btn-danger" onclick="askDelete('${esc(m.filename)}')">Delete</button></td>
     </tr>
   `).join('');
 }
@@ -815,9 +823,7 @@ async function confirmDelete() {
   closeModal('deleteModal');
   try {
     await api('/api/models/' + encodeURIComponent(pendingDelete), { method: 'DELETE' });
-    showToast('Deleted ' + pendingDelete);
-    pendingDelete = null;
-    loadModels();
+    showToast('Deleted ' + pendingDelete); pendingDelete = null; loadModels();
   } catch (e) { /* handled */ }
 }
 
@@ -826,69 +832,48 @@ async function startServer() {
   const model = document.getElementById('startModel').value;
   if (!model) { showToast('Select a model first', 'error'); return; }
   try {
-    await api('/api/server/start', {
-      method: 'POST',
-      body: JSON.stringify({ model }),
-    });
-    showToast('Server starting...');
-    setTimeout(loadStatus, 1000);
+    await api('/api/server/start', { method: 'POST', body: JSON.stringify({ model }) });
+    showToast('Server starting...'); setTimeout(loadStatus, 1000);
   } catch (e) { /* handled */ }
 }
 
 async function stopServer() {
-  try {
-    await api('/api/server/stop', { method: 'POST' });
-    showToast('Server stopped');
-    loadStatus();
-  } catch (e) { /* handled */ }
+  try { await api('/api/server/stop', { method: 'POST' }); showToast('Server stopped'); loadStatus(); } catch (e) {}
 }
 
 async function restartServer() {
-  try {
-    await api('/api/server/restart', { method: 'POST', body: '{}' });
-    showToast('Server restarting...');
-    setTimeout(loadStatus, 1000);
-  } catch (e) { /* handled */ }
+  try { await api('/api/server/restart', { method: 'POST', body: '{}' }); showToast('Server restarting...'); setTimeout(loadStatus, 1000); } catch (e) {}
 }
 
 /* ===== HuggingFace Search ===== */
 async function searchHF() {
   const q = document.getElementById('hfSearch').value.trim();
   if (!q) return;
-
   const container = document.getElementById('hfResults');
   container.innerHTML = '<div class="empty-state">Searching...</div>';
-
   try {
     const data = await api('/api/models/search?q=' + encodeURIComponent(q));
-    if (!data.results.length) {
-      container.innerHTML = '<div class="empty-state">No results found.</div>';
-      return;
-    }
+    if (!data.results.length) { container.innerHTML = '<div class="empty-state">No results found.</div>'; return; }
     container.innerHTML = data.results.map(r => `
       <div class="hf-result" onclick="showRepoFiles('${esc(r.repo_id)}')">
         <div class="repo-name">${esc(r.repo_id)}</div>
         <div class="repo-meta">
-          <span>⬇ ${r.downloads?.toLocaleString() || '?'}</span>
-          <span>♥ ${r.likes || 0}</span>
+          <span><svg class="icon"><use href="#ico-download"/></svg> ${r.downloads?.toLocaleString() || '?'}</span>
+          <span><svg class="icon"><use href="#ico-heart"/></svg> ${r.likes || 0}</span>
           ${r.author ? '<span>by ' + esc(r.author) + '</span>' : ''}
         </div>
       </div>
     `).join('');
-  } catch (e) { /* handled */ }
+  } catch (e) {}
 }
 
 async function showRepoFiles(repoId) {
   document.getElementById('repoFilesTitle').textContent = repoId;
   document.getElementById('repoFilesList').innerHTML = '<div class="empty-state">Loading files...</div>';
   openModal('repoFilesModal');
-
   try {
     const data = await api('/api/models/files?repo=' + encodeURIComponent(repoId));
-    if (!data.files.length) {
-      document.getElementById('repoFilesList').innerHTML = '<div class="empty-state">No GGUF files found.</div>';
-      return;
-    }
+    if (!data.files.length) { document.getElementById('repoFilesList').innerHTML = '<div class="empty-state">No GGUF files found.</div>'; return; }
     document.getElementById('repoFilesList').innerHTML = data.files.map(f => `
       <div class="file-item">
         <span class="file-name">${esc(f.filename)}</span>
@@ -896,54 +881,32 @@ async function showRepoFiles(repoId) {
         <button class="btn btn-sm btn-primary" onclick="startDownload('${esc(repoId)}', '${esc(f.filename)}')">Download</button>
       </div>
     `).join('');
-  } catch (e) { /* handled */ }
+  } catch (e) {}
 }
 
 async function startDownload(repoId, filename) {
   closeModal('repoFilesModal');
   try {
-    await api('/api/models/download', {
-      method: 'POST',
-      body: JSON.stringify({ repo_id: repoId, filename }),
-    });
-    showToast('Download started: ' + filename, 'info');
-    switchTab('download');
-    loadDownloads();
-  } catch (e) { /* handled */ }
+    await api('/api/models/download', { method: 'POST', body: JSON.stringify({ repo_id: repoId, filename }) });
+    showToast('Download started: ' + filename, 'info'); switchTab('download'); loadDownloads();
+  } catch (e) {}
 }
 
 async function loadDownloads() {
-  try {
-    const data = await api('/api/downloads');
-    renderDownloads(data.downloads);
-  } catch (e) { /* handled */ }
+  try { const data = await api('/api/downloads'); renderDownloads(data.downloads); } catch (e) {}
 }
 
 function renderDownloads(downloads) {
   const container = document.getElementById('downloadsList');
-  if (!downloads.length) {
-    container.innerHTML = '<div class="empty-state">No active downloads.</div>';
-    return;
-  }
+  if (!downloads.length) { container.innerHTML = '<div class="empty-state">No active downloads.</div>'; return; }
   container.innerHTML = downloads.map(d => {
     const pct = (d.progress * 100).toFixed(0);
-    let statusClass = d.status === 'completed' ? 'badge-ok'
-      : d.status === 'failed' ? 'badge-error'
-      : d.status === 'cancelled' ? 'badge-warn'
-      : 'badge-dim';
-    return `
-      <div class="download-item">
-        <div class="dl-header">
-          <span class="dl-name">${esc(d.repo_id)} / ${esc(d.filename)}</span>
-          <span class="badge ${statusClass} dl-status">${d.status}</span>
-        </div>
-        ${d.status === 'downloading' ? `
-          <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>
-          <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">${pct}%</div>
-        ` : ''}
-        ${d.error ? `<div style="font-size:12px;color:var(--red);margin-top:4px;">${esc(d.error)}</div>` : ''}
-      </div>
-    `;
+    let sc = d.status === 'completed' ? 'badge-ok' : d.status === 'failed' ? 'badge-error' : d.status === 'cancelled' ? 'badge-warn' : 'badge-dim';
+    return `<div class="download-item">
+      <div class="dl-header"><span class="dl-name">${esc(d.repo_id)} / ${esc(d.filename)}</span><span class="badge ${sc} dl-status">${d.status}</span></div>
+      ${d.status === 'downloading' ? `<div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div><div style="font-size:12px;color:var(--text-dim);margin-top:4px;">${pct}%</div>` : ''}
+      ${d.error ? `<div style="font-size:12px;color:var(--red);margin-top:4px;">${esc(d.error)}</div>` : ''}
+    </div>`;
   }).join('');
 }
 
@@ -951,8 +914,7 @@ function renderDownloads(downloads) {
 async function loadConfig() {
   try {
     const data = await api('/api/config');
-    const c = data.config;
-    const a = c.default_args || {};
+    const c = data.config, a = c.default_args || {};
     document.getElementById('cfgServerPath').value = c.llama_server_path || '';
     document.getElementById('cfgModelsDir').value = c.models_dir || '';
     document.getElementById('cfgHost').value = a.host || '0.0.0.0';
@@ -966,7 +928,7 @@ async function loadConfig() {
     document.getElementById('cfgFlashAttn').checked = a.flash_attn !== false;
     document.getElementById('cfgContBatching').checked = a.cont_batching !== false;
     document.getElementById('cfgMetrics').checked = a.metrics !== false;
-  } catch (e) { /* handled */ }
+  } catch (e) {}
 }
 
 async function saveConfig() {
@@ -987,35 +949,21 @@ async function saveConfig() {
       metrics: document.getElementById('cfgMetrics').checked,
     },
   };
-  try {
-    await api('/api/config', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-    showToast('Configuration saved');
-  } catch (e) { /* handled */ }
+  try { await api('/api/config', { method: 'POST', body: JSON.stringify(payload) }); showToast('Configuration saved'); } catch (e) {}
 }
 
 /* ===== Logs ===== */
 function appendLog(line) {
   logLines.push(line);
   if (logLines.length > 2000) logLines = logLines.slice(-1500);
-
   const viewer = document.getElementById('logViewer');
   const div = document.createElement('div');
   div.className = 'log-line' + (line.stream === 'stderr' ? ' stderr' : '');
   const ts = new Date(line.timestamp * 1000).toLocaleTimeString();
   div.innerHTML = '<span class="ts">' + ts + '</span>' + esc(line.text);
   viewer.appendChild(div);
-
-  // Trim DOM if too many
   while (viewer.children.length > 2000) viewer.removeChild(viewer.firstChild);
-
-  // Auto-scroll
-  if (document.getElementById('logAutoScroll').checked) {
-    viewer.scrollTop = viewer.scrollHeight;
-  }
-
+  if (document.getElementById('logAutoScroll').checked) viewer.scrollTop = viewer.scrollHeight;
   document.getElementById('logCount').textContent = viewer.children.length + ' lines';
 }
 
@@ -1026,10 +974,7 @@ function clearLogs() {
 }
 
 async function loadInitialLogs() {
-  try {
-    const data = await api('/api/logs?n=200');
-    for (const line of data.logs) appendLog(line);
-  } catch (e) { /* handled */ }
+  try { const data = await api('/api/logs?n=200'); for (const line of data.logs) appendLog(line); } catch (e) {}
 }
 
 /* ===== SSE ===== */
@@ -1037,33 +982,25 @@ function connectSSE() {
   if (sseSource) sseSource.close();
   sseSource = new EventSource('/api/events');
 
-  sseSource.addEventListener('log', (e) => {
-    const data = JSON.parse(e.data);
-    appendLog(data);
-  });
+  sseSource.addEventListener('log', (e) => appendLog(JSON.parse(e.data)));
 
   sseSource.addEventListener('status', (e) => {
-    const data = JSON.parse(e.data);
-    updateServerUI(data, null);
-    // Refresh full status for health info
+    updateServerUI(JSON.parse(e.data), null);
     loadStatus();
   });
 
-  sseSource.addEventListener('gpu', (e) => {
-    const data = JSON.parse(e.data);
-    updateGpuUI(data);
+  sseSource.addEventListener('system', (e) => {
+    const d = JSON.parse(e.data);
+    if (d.gpu) updateGpuUI(d.gpu);
+    if (d.cpu) updateCpuUI(d.cpu);
+    if (d.ram) updateRamUI(d.ram);
+    if (d.disks) updateDiskUI(d.disks);
   });
 
-  sseSource.addEventListener('download', (e) => {
-    if (currentTab === 'download') loadDownloads();
-  });
+  sseSource.addEventListener('download', () => { if (currentTab === 'download') loadDownloads(); });
 
   sseSource.onerror = () => {
-    // Reconnect after a delay
-    setTimeout(() => {
-      if (sseSource) { sseSource.close(); sseSource = null; }
-      connectSSE();
-    }, 3000);
+    setTimeout(() => { if (sseSource) { sseSource.close(); sseSource = null; } connectSSE(); }, 3000);
   };
 }
 
@@ -1077,9 +1014,7 @@ function esc(str) {
 
 function formatDuration(seconds) {
   if (seconds == null) return '--';
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = Math.floor(seconds % 60);
+  const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = Math.floor(seconds % 60);
   if (h > 0) return h + 'h ' + m + 'm';
   if (m > 0) return m + 'm ' + s + 's';
   return s + 's';
@@ -1089,25 +1024,17 @@ function formatDuration(seconds) {
 let statusInterval = null;
 function startStatusPolling() {
   if (statusInterval) clearInterval(statusInterval);
-  statusInterval = setInterval(() => {
-    if (currentTab === 'dashboard') loadStatus();
-  }, 5000);
+  statusInterval = setInterval(() => { if (currentTab === 'dashboard') loadStatus(); }, 5000);
 }
 
 /* ===== Init ===== */
 window.addEventListener('load', async () => {
   setTheme(currentTheme);
-
-  // Restore saved tab
   const savedTab = localStorage.getItem('llama-deck-tab');
   if (savedTab) switchTab(savedTab);
-
-  // Load initial data
   await loadStatus();
   await loadModels();
   await loadInitialLogs();
-
-  // Start SSE + polling
   connectSSE();
   startStatusPolling();
 });

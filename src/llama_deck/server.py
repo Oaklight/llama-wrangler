@@ -8,9 +8,9 @@ from pathlib import Path
 
 from llama_deck._vendor.httpserver import App, JSONResponse, StreamingResponse, abort
 from llama_deck.config import DeckConfig, save_config
-from llama_deck.gpu_monitor import GPUMonitor
 from llama_deck.llama_manager import LlamaManager
 from llama_deck.model_manager import ModelManager
+from llama_deck.system_monitor import SystemMonitor
 
 logger = logging.getLogger(__name__)
 
@@ -43,16 +43,16 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
     app.config = config
     app.config_path = config_path
     app.llama = LlamaManager(config)
-    app.gpu = GPUMonitor()
+    app.sysmon = SystemMonitor(disk_paths=[config.models_dir, "/"])
     app.models = ModelManager(config.models_dir)
 
     # --- Lifecycle hooks ---
 
     @app.before_request
     async def _start_monitors(request):
-        """Start GPU monitor on first request (lazy init)."""
+        """Start system monitor on first request (lazy init)."""
         if not hasattr(app, "_monitors_started"):
-            app.gpu.start()
+            app.sysmon.start()
             app._monitors_started = True
 
     # --- Static / UI ---
@@ -76,15 +76,19 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
 
     @app.get("/api/status")
     async def get_status(request):
-        """Get combined server status, GPU info, and health."""
+        """Get combined server status, system info, and health."""
         server_status = app.llama.status()
         health = await app.llama.health_check()
-        gpu = app.gpu.latest
+        system = app.sysmon.latest or {}
 
         return {
             "server": server_status,
             "health": health,
-            "gpu": gpu,
+            "gpu": system.get("gpu"),
+            "cpu": system.get("cpu"),
+            "ram": system.get("ram"),
+            "disks": system.get("disks"),
+            "temperatures": system.get("temperatures"),
         }
 
     # --- Models ---
@@ -266,7 +270,7 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
         """
         log_q = app.llama.subscribe_logs()
         status_q = app.llama.subscribe_status()
-        gpu_q = app.gpu.subscribe()
+        sys_q = app.sysmon.subscribe()
         dl_q = app.models.subscribe_downloads()
 
         async def generate():
@@ -279,7 +283,7 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
                     for event_type, q in [
                         ("log", log_q),
                         ("status", status_q),
-                        ("gpu", gpu_q),
+                        ("system", sys_q),
                         ("download", dl_q),
                     ]:
                         while True:
@@ -303,7 +307,7 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
             finally:
                 app.llama.unsubscribe_logs(log_q)
                 app.llama.unsubscribe_status(status_q)
-                app.gpu.unsubscribe(gpu_q)
+                app.sysmon.unsubscribe(sys_q)
                 app.models.unsubscribe_downloads(dl_q)
 
         return StreamingResponse(
