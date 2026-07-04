@@ -1131,55 +1131,48 @@ function _populateModelSelect(selectedModel) {
   });
 }
 
-function launchModel(filename) {
-  // Open new instance modal with this model pre-selected
-  document.getElementById('instEditId').value = '';
-  document.getElementById('instModalTitle').textContent = t('modal.newInstance');
-  document.getElementById('instSaveBtn').textContent = t('btn.start');
-  document.getElementById('instName').value = '';
-  document.getElementById('instMode').value = 'chat';
-  _populateModelSelect(filename);
+function _openInstanceModal(opts = {}) {
+  // opts: { editId, title, btnText, name, mode, model, lockModel, args }
+  document.getElementById('instEditId').value = opts.editId || '';
+  document.getElementById('instModalTitle').textContent = opts.title || t('modal.newInstance');
+  document.getElementById('instSaveBtn').textContent = opts.btnText || t('btn.start');
+  document.getElementById('instName').value = opts.name || '';
+  document.getElementById('instMode').value = opts.mode || 'chat';
+
+  const sel = document.getElementById('instModel');
+  sel.disabled = !!opts.lockModel;
+  _populateModelSelect(opts.model);
+
+  const a = opts.args || {};
   api('/api/config').then(data => {
-    const a = data.config.default_args || {};
-    document.getElementById('instPort').value = a.port || 8080;
-    document.getElementById('instGpuLayers').value = a.n_gpu_layers ?? 99;
-    document.getElementById('instCtxSize').value = a.ctx_size || 8192;
-    document.getElementById('instBatchSize').value = a.batch_size || 2048;
+    const d = data.config.default_args || {};
+    document.getElementById('instPort').value = a.port || d.port || 8080;
+    document.getElementById('instGpuLayers').value = a.n_gpu_layers ?? d.n_gpu_layers ?? 99;
+    document.getElementById('instCtxSize').value = a.ctx_size || d.ctx_size || 8192;
+    document.getElementById('instBatchSize').value = a.batch_size || d.batch_size || 2048;
   });
   openModal('newInstanceModal');
+}
+
+function launchModel(filename) {
+  _openInstanceModal({ model: filename, lockModel: true });
 }
 
 function openNewInstanceModal() {
-  document.getElementById('instEditId').value = '';
-  document.getElementById('instModalTitle').textContent = t('modal.newInstance');
-  document.getElementById('instSaveBtn').textContent = t('btn.start');
-  document.getElementById('instName').value = '';
-  document.getElementById('instMode').value = 'chat';
-  _populateModelSelect();
-  // Load defaults from config
-  api('/api/config').then(data => {
-    const a = data.config.default_args || {};
-    document.getElementById('instPort').value = a.port || 8080;
-    document.getElementById('instGpuLayers').value = a.n_gpu_layers ?? 99;
-    document.getElementById('instCtxSize').value = a.ctx_size || 8192;
-    document.getElementById('instBatchSize').value = a.batch_size || 2048;
-  });
-  openModal('newInstanceModal');
+  _openInstanceModal();
 }
 
 function editInstance(inst) {
-  document.getElementById('instEditId').value = inst.instance_id;
-  document.getElementById('instModalTitle').textContent = t('modal.editInstance') || 'Edit Instance';
-  document.getElementById('instSaveBtn').textContent = t('btn.saveRestart') || 'Save & Restart';
-  document.getElementById('instName').value = inst.name || '';
-  document.getElementById('instMode').value = inst.mode || 'chat';
-  _populateModelSelect(inst.model);
-  const a = inst.args || {};
-  document.getElementById('instPort').value = a.port || 8080;
-  document.getElementById('instGpuLayers').value = a.n_gpu_layers ?? 99;
-  document.getElementById('instCtxSize').value = a.ctx_size || 8192;
-  document.getElementById('instBatchSize').value = a.batch_size || 2048;
-  openModal('newInstanceModal');
+  _openInstanceModal({
+    editId: inst.instance_id,
+    title: t('modal.editInstance'),
+    btnText: t('btn.saveRestart'),
+    name: inst.name,
+    mode: inst.mode,
+    model: inst.model,
+    lockModel: false,
+    args: inst.args,
+  });
 }
 
 async function saveInstance() {
@@ -1196,6 +1189,7 @@ async function saveInstance() {
     reranking: mode === 'reranking',
   };
   closeModal('newInstanceModal');
+  document.getElementById('instModel').disabled = false;
 
   if (editId) {
     // Edit = restart with new args
