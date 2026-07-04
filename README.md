@@ -1,5 +1,9 @@
 # llama-wrangler
 
+[![PyPI](https://img.shields.io/pypi/v/llama-wrangler?color=brightgreen&label=PyPI)](https://pypi.org/project/llama-wrangler/)
+[![GitHub Release](https://img.shields.io/github/v/release/Oaklight/llama-wrangler?color=brightgreen&label=Release)](https://github.com/Oaklight/llama-wrangler/releases)
+[![Docker](https://img.shields.io/docker/v/oaklight/llama-wrangler?color=brightgreen&label=Docker)](https://hub.docker.com/r/oaklight/llama-wrangler)
+
 Lightweight web admin panel for [llama.cpp](https://github.com/ggerganov/llama.cpp) server management.
 
 ## Features
