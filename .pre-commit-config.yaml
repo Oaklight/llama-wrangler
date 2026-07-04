@@ -1,3 +1,4 @@
+exclude: _vendor/
 repos:
   # ── Ruff: lint + format ──────────────────────────────────────────────────
   - repo: https://github.com/astral-sh/ruff-pre-commit
