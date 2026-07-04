@@ -116,6 +116,8 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
     @app.post("/api/instances")
     async def create_instance(request):
         """Create and start a new llama-server instance."""
+        if not request.body:
+            abort(400, "Request body required")
         data = request.json()
         model = data.get("model")
 
@@ -136,6 +138,8 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
         try:
             instance = await app.instances.create(model_path, args, name)
             return {"instance": instance.status()}, 201
+        except ValueError as e:
+            abort(400, str(e))
         except RuntimeError as e:
             abort(409, str(e))
         except FileNotFoundError as e:

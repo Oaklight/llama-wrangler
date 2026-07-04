@@ -431,6 +431,10 @@ class InstanceManager:
         if args is None:
             args = ServerArgs.from_dict(self.config.default_args.to_dict())
 
+        # Validate port range
+        if args.port < 1024 or args.port > 65535:
+            raise ValueError(f"Port {args.port} out of allowed range (1024-65535)")
+
         # Check port conflict
         for inst in self._instances.values():
             if inst.is_running and inst.port == args.port:
