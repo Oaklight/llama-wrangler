@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>llama-deck</title>
+<title>llama-wrangler</title>
 <style>
 /* ===== CSS Variables ===== */
 :root {
@@ -391,7 +391,7 @@ td.actions { white-space: nowrap; text-align: right; }
 <!-- Header -->
 <div class="header">
   <div class="header-left">
-    <h1>llama-deck <span id="version"></span></h1>
+    <h1>llama-wrangler <span id="version"></span></h1>
     <span class="badge badge-dim" id="serverBadge">0 running</span>
   </div>
   <div class="header-right">
@@ -789,7 +789,7 @@ const I18N = {
   },
 };
 
-let currentLang = localStorage.getItem('llama-deck-lang') || 'en';
+let currentLang = localStorage.getItem('llama-wrangler-lang') || 'en';
 
 function t(key, fallback) {
   return I18N[currentLang]?.[key] || I18N.en[key] || fallback || key;
@@ -818,7 +818,7 @@ function applyI18n() {
 
 function setLang(lang) {
   currentLang = lang;
-  localStorage.setItem('llama-deck-lang', lang);
+  localStorage.setItem('llama-wrangler-lang', lang);
   applyI18n();
   // Refresh dynamic content that uses t()
   loadModels();
@@ -826,7 +826,7 @@ function setLang(lang) {
   if (currentTab === 'instances') loadInstances();
 }
 
-let currentTheme = localStorage.getItem('llama-deck-theme') || 'light';
+let currentTheme = localStorage.getItem('llama-wrangler-theme') || 'light';
 
 function setTheme(name) {
   const vars = THEMES[name];
@@ -834,7 +834,7 @@ function setTheme(name) {
   const root = document.documentElement;
   for (const [k, v] of Object.entries(vars)) root.style.setProperty(k, v);
   currentTheme = name;
-  localStorage.setItem('llama-deck-theme', name);
+  localStorage.setItem('llama-wrangler-theme', name);
   document.getElementById('themeBtnIcon').setAttribute('href', name === 'dark' ? '#ico-sun' : '#ico-moon');
 }
 
@@ -857,7 +857,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
   currentTab = name;
-  localStorage.setItem('llama-deck-tab', name);
+  localStorage.setItem('llama-wrangler-tab', name);
   if (name === 'instances') loadInstances();
   if (name === 'models') { loadModels(); loadDownloads(); }
   if (name === 'config') loadConfig();
@@ -1510,7 +1510,7 @@ window.addEventListener('load', async () => {
   setTheme(currentTheme);
   _initLangSelect();
   applyI18n();
-  const savedTab = localStorage.getItem('llama-deck-tab');
+  const savedTab = localStorage.getItem('llama-wrangler-tab');
   if (savedTab) switchTab(savedTab);
   await loadStatus();
   await loadInstances();

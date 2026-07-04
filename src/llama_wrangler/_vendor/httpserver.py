@@ -567,9 +567,7 @@ def _coerce_response(result: Any) -> Response | StreamingResponse:
     if isinstance(result, str):
         return Response(body=result, content_type="text/plain; charset=utf-8")
 
-    raise TypeError(
-        f"Cannot coerce handler return type {type(result).__name__} to Response"
-    )
+    raise TypeError(f"Cannot coerce handler return type {type(result).__name__} to Response")
 
 
 # ── Static File Resolution ───────────────────────────────────────────────────
@@ -646,9 +644,7 @@ class App:
 
     # ── Route Registration ───────────────────────────────────────────────
 
-    def route(
-        self, url_pattern: str, methods: list[str] | None = None
-    ) -> Callable[..., Any]:
+    def route(self, url_pattern: str, methods: list[str] | None = None) -> Callable[..., Any]:
         """Register a route handler.
 
         Args:
@@ -755,9 +751,7 @@ class App:
 
     # ── Request Dispatch ─────────────────────────────────────────────────
 
-    def _match_route(
-        self, request: Request
-    ) -> tuple[_Route | None, re.Match[str] | None, bool]:
+    def _match_route(self, request: Request) -> tuple[_Route | None, re.Match[str] | None, bool]:
         """Find the first route matching the request path and method.
 
         Returns:
@@ -847,9 +841,7 @@ class App:
         exc = HTTPException(404, "Not Found")
         return await self._handle_error(request, exc)
 
-    async def _handle_error(
-        self, request: Request, exc: Exception
-    ) -> Response | StreamingResponse:
+    async def _handle_error(self, request: Request, exc: Exception) -> Response | StreamingResponse:
         """Resolve an error into a response, consulting registered handlers."""
         if isinstance(exc, HTTPException):
             handler = self._error_handlers.get(exc.status_code)
@@ -931,9 +923,7 @@ class App:
             logger.debug("Incomplete request body from %s", client_addr)
             await self._send_error_and_close(
                 writer,
-                JSONResponse(
-                    {"error": "Bad Request: incomplete body"}, status_code=400
-                ),
+                JSONResponse({"error": "Bad Request: incomplete body"}, status_code=400),
             )
             return
         except Exception:

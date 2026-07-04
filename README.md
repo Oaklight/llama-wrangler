@@ -1,4 +1,4 @@
-# llama-deck
+# llama-wrangler
 
 Lightweight web admin panel for [llama.cpp](https://github.com/ggerganov/llama.cpp) server management.
 
@@ -16,12 +16,12 @@ Lightweight web admin panel for [llama.cpp](https://github.com/ggerganov/llama.c
 ## Install
 
 ```bash
-pip install llama-deck
+pip install llama-wrangler
 ```
 
 ### Prerequisites
 
-llama-deck manages a `llama-server` process on the host machine. Make sure you have:
+llama-wrangler manages a `llama-server` process on the host machine. Make sure you have:
 
 - **llama.cpp** compiled with `llama-server` binary ([build instructions](https://github.com/ggerganov/llama.cpp#build))
 - **NVIDIA GPU driver** installed (for GPU inference and monitoring)
@@ -30,17 +30,17 @@ llama-deck manages a `llama-server` process on the host machine. Make sure you h
 
 ```bash
 # Start the admin panel
-llama-deck --host 0.0.0.0 --port 7860
+llama-wrangler --host 0.0.0.0 --port 7860
 
 # With custom config
-llama-deck --config /path/to/config.json
+llama-wrangler --config /path/to/config.json
 ```
 
 Then open `http://localhost:7860` in your browser.
 
 ## Configuration
 
-Config is stored at `~/.config/llama-deck/config.json`:
+Config is stored at `~/.config/llama-wrangler/config.json`:
 
 ```json
 {
@@ -89,15 +89,15 @@ The following must be set up on the **host machine** before running the containe
 
 ```bash
 # Build
-docker build -t llama-deck .
+docker build -t llama-wrangler .
 
 # Run
 docker run --gpus all -p 7860:7860 \
   -v /path/to/models:/mnt/data/models \
   -v /path/to/llama-server:/opt/llama-server:ro \
   -v /sys:/sys:ro \
-  -v ~/.config/llama-deck:/root/.config/llama-deck \
-  llama-deck
+  -v ~/.config/llama-wrangler:/root/.config/llama-wrangler \
+  llama-wrangler
 ```
 
 Volume mounts explained:
@@ -107,20 +107,20 @@ Volume mounts explained:
 | `-v /path/to/models:/mnt/data/models` | GGUF model files (read/write for downloads) |
 | `-v /path/to/llama-server:/opt/llama-server:ro` | llama-server binary from host |
 | `-v /sys:/sys:ro` | Sensor data (disk/NVMe temperatures via psutil) |
-| `-v ~/.config/llama-deck:...` | Persist configuration across restarts |
+| `-v ~/.config/llama-wrangler:...` | Persist configuration across restarts |
 | `--gpus all` | GPU access (nvidia-smi, CUDA for llama-server) |
 
 > **Note**: CPU and RAM metrics work out of the box in Docker — psutil reads `/proc` which is shared from the host. GPU monitoring requires `--gpus all` via nvidia-container-toolkit.
 
 ### Without GPU
 
-llama-deck works without a GPU (CPU-only inference). Simply omit `--gpus all`:
+llama-wrangler works without a GPU (CPU-only inference). Simply omit `--gpus all`:
 
 ```bash
 docker run -p 7860:7860 \
   -v /path/to/models:/mnt/data/models \
   -v /path/to/llama-server:/opt/llama-server:ro \
-  llama-deck
+  llama-wrangler
 ```
 
 The GPU section on the dashboard will be hidden automatically.

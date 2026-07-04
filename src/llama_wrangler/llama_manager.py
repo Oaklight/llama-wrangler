@@ -12,7 +12,7 @@ from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
 
-from llama_deck.config import DeckConfig, ServerArgs
+from llama_wrangler.config import DeckConfig, ServerArgs
 
 logger = logging.getLogger(__name__)
 

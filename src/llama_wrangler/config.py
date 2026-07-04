@@ -1,4 +1,4 @@
-"""Configuration management for llama-deck."""
+"""Configuration management for llama-wrangler."""
 
 import json
 import os
@@ -6,7 +6,7 @@ import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
-DEFAULT_CONFIG_DIR = Path.home() / ".config" / "llama-deck"
+DEFAULT_CONFIG_DIR = Path.home() / ".config" / "llama-wrangler"
 DEFAULT_CONFIG_PATH = DEFAULT_CONFIG_DIR / "config.json"
 
 
@@ -58,7 +58,7 @@ class ServerArgs:
 
 @dataclass
 class DeckConfig:
-    """Top-level configuration for llama-deck."""
+    """Top-level configuration for llama-wrangler."""
 
     llama_server_path: str = "/opt/llama.cpp/build/bin/llama-server"
     models_dir: str = "/mnt/data/models"

@@ -1,4 +1,4 @@
-"""HTTP server and API routes for llama-deck."""
+"""HTTP server and API routes for llama-wrangler."""
 
 import asyncio
 import importlib.resources
@@ -6,11 +6,11 @@ import json
 import logging
 from pathlib import Path
 
-from llama_deck._vendor.httpserver import App, StreamingResponse, abort
-from llama_deck.config import DeckConfig, ServerArgs, save_config
-from llama_deck.llama_manager import InstanceManager
-from llama_deck.model_manager import ModelManager
-from llama_deck.system_monitor import SystemMonitor
+from llama_wrangler._vendor.httpserver import App, StreamingResponse, abort
+from llama_wrangler.config import DeckConfig, ServerArgs, save_config
+from llama_wrangler.llama_manager import InstanceManager
+from llama_wrangler.model_manager import ModelManager
+from llama_wrangler.system_monitor import SystemMonitor
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +20,13 @@ _index_html: str | None = None
 
 def _load_index_html() -> str:
     """Load index.html from package data."""
-    return importlib.resources.files("llama_deck").joinpath("static/index.html").read_text("utf-8")
+    return (
+        importlib.resources.files("llama_wrangler").joinpath("static/index.html").read_text("utf-8")
+    )
 
 
 def create_app(config: DeckConfig, config_path: Path) -> App:
-    """Create and configure the llama-deck HTTP application.
+    """Create and configure the llama-wrangler HTTP application.
 
     Args:
         config: The deck configuration.
@@ -59,7 +61,7 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
         global _index_html
         if _index_html is None:
             _index_html = _load_index_html()
-        from llama_deck._vendor.httpserver import Response
+        from llama_wrangler._vendor.httpserver import Response
 
         return Response(
             body=_index_html,

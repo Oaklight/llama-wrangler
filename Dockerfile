@@ -22,5 +22,5 @@ RUN if [ -n "$PYPI_MIRROR" ]; then \
 
 EXPOSE 7860
 
-ENTRYPOINT ["llama-deck"]
+ENTRYPOINT ["llama-wrangler"]
 CMD ["--host", "0.0.0.0", "--port", "7860"]

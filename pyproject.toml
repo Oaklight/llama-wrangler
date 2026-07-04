@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llama-deck"
+name = "llama-wrangler"
 dynamic = ["version"]
 authors = [{ name = "Peng Ding", email = "oaklight.cn@gmail.com" }]
 description = "Lightweight web admin panel for llama.cpp server management"
@@ -34,25 +34,25 @@ dev = [
 ]
 
 [project.urls]
-Repository = "https://github.com/Oaklight/llama-deck"
-Issues = "https://github.com/Oaklight/llama-deck/issues"
+Repository = "https://github.com/Oaklight/llama-wrangler"
+Issues = "https://github.com/Oaklight/llama-wrangler/issues"
 
 [project.scripts]
-llama-deck = "llama_deck.cli:main"
+llama-wrangler = "llama_wrangler.cli:main"
 
 [tool.setuptools.dynamic]
-version = { attr = "llama_deck.__version__" }
+version = { attr = "llama_wrangler.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-"llama_deck" = ["static/*"]
+"llama_wrangler" = ["static/*"]
 
 [tool.ruff]
 target-version = "py310"
 line-length = 100
-extend-exclude = ["src/llama_deck/_vendor"]
+extend-exclude = ["src/llama_wrangler/_vendor"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "UP"]

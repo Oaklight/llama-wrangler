@@ -1,15 +1,15 @@
-"""CLI entry point for llama-deck."""
+"""CLI entry point for llama-wrangler."""
 
 import argparse
 import sys
 
-from llama_deck import __version__
+from llama_wrangler import __version__
 
 
 def build_parser() -> argparse.ArgumentParser:
     """Build the argument parser."""
     parser = argparse.ArgumentParser(
-        prog="llama-deck",
+        prog="llama-wrangler",
         description="Lightweight web admin panel for llama.cpp server management",
     )
     parser.add_argument(
@@ -32,7 +32,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--config",
         default=None,
-        help="Path to config file (default: ~/.config/llama-deck/config.json)",
+        help="Path to config file (default: ~/.config/llama-wrangler/config.json)",
     )
     return parser
 
@@ -42,12 +42,12 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
-    from llama_deck.config import load_config
-    from llama_deck.server import create_app
+    from llama_wrangler.config import load_config
+    from llama_wrangler.server import create_app
 
     config, config_path = load_config(args.config)
 
-    print(f"llama-deck v{__version__}")
+    print(f"llama-wrangler v{__version__}")
     print(f"Config: {config_path}")
     print(f"Models dir: {config.models_dir}")
     print(f"Starting on http://{args.host}:{args.port}")
