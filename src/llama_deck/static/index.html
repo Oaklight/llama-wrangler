@@ -1054,7 +1054,10 @@ function renderModels(models) {
       <td><code>${esc(m.filename)}</code>${instBadges}</td>
       <td>${esc(m.size_human)}</td>
       <td>${new Date(m.modified * 1000).toLocaleDateString()}</td>
-      <td class="actions">${running ? '' : `<button class="btn btn-sm btn-danger" onclick="askDelete('${esc(m.filename)}')">${t('btn.delete')}</button>`}</td>
+      <td class="actions">
+        <button class="btn btn-sm btn-primary" onclick="launchModel('${esc(m.filename)}')">${t('btn.start')}</button>
+        ${running ? '' : `<button class="btn btn-sm btn-danger" onclick="askDelete('${esc(m.filename)}')">${t('btn.delete')}</button>`}
+      </td>
     </tr>`;
   }).join('');
 }
@@ -1126,6 +1129,24 @@ function _populateModelSelect(selectedModel) {
     }
     if (selectedModel) sel.value = selectedModel;
   });
+}
+
+function launchModel(filename) {
+  // Open new instance modal with this model pre-selected
+  document.getElementById('instEditId').value = '';
+  document.getElementById('instModalTitle').textContent = t('modal.newInstance');
+  document.getElementById('instSaveBtn').textContent = t('btn.start');
+  document.getElementById('instName').value = '';
+  document.getElementById('instMode').value = 'chat';
+  _populateModelSelect(filename);
+  api('/api/config').then(data => {
+    const a = data.config.default_args || {};
+    document.getElementById('instPort').value = a.port || 8080;
+    document.getElementById('instGpuLayers').value = a.n_gpu_layers ?? 99;
+    document.getElementById('instCtxSize').value = a.ctx_size || 8192;
+    document.getElementById('instBatchSize').value = a.batch_size || 2048;
+  });
+  openModal('newInstanceModal');
 }
 
 function openNewInstanceModal() {
