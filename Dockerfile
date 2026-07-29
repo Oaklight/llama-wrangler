@@ -1,23 +1,20 @@
 ARG REGISTRY_MIRROR=docker.io
-FROM ${REGISTRY_MIRROR}/python:3.12-slim AS base
+FROM ${REGISTRY_MIRROR}/archlinux:base AS base
 
 ARG PYPI_MIRROR
 
 WORKDIR /app
 
-# Install system deps for nvidia-smi (if available in runtime)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+RUN pacman -Syu --noconfirm python python-pip curl && \
+    pacman -Scc --noconfirm
 
-# Install Python deps
 COPY pyproject.toml README.md ./
 COPY src/ ./src/
 
 RUN if [ -n "$PYPI_MIRROR" ]; then \
-        pip install --no-cache-dir -i "$PYPI_MIRROR" .; \
+        pip install --no-cache-dir --break-system-packages -i "$PYPI_MIRROR" .; \
     else \
-        pip install --no-cache-dir .; \
+        pip install --no-cache-dir --break-system-packages .; \
     fi
 
 EXPOSE 7860
