@@ -96,9 +96,11 @@ The following must be set up on the **host machine** before running the containe
 docker build -t llama-wrangler .
 
 # Run
-docker run --gpus all -p 7860:7860 \
+docker run --gpus all --network host \
+  -e LD_LIBRARY_PATH=/opt/llama.cpp/bin:/opt/cuda/lib64 \
+  -e LLAMA_SERVER_PATH=/opt/llama.cpp/bin/llama-server \
   -v /path/to/models:/mnt/data/models \
-  -v /path/to/llama-server:/opt/llama-server:ro \
+  -v /path/to/llama.cpp/build/bin:/opt/llama.cpp/bin:ro \
   -v /sys:/sys:ro \
   -v ~/.config/llama-wrangler:/root/.config/llama-wrangler \
   llama-wrangler
@@ -108,22 +110,20 @@ Volume mounts explained:
 
 | Mount | Purpose |
 |-------|---------|
+| `-v .../build/bin:/opt/llama.cpp/bin:ro` | llama-server binary and shared libs from host |
 | `-v /path/to/models:/mnt/data/models` | GGUF model files (read/write for downloads) |
-| `-v /path/to/llama-server:/opt/llama-server:ro` | llama-server binary from host |
 | `-v /sys:/sys:ro` | Sensor data (disk/NVMe temperatures via psutil) |
 | `-v ~/.config/llama-wrangler:...` | Persist configuration across restarts |
 | `--gpus all` | GPU access (nvidia-smi, CUDA for llama-server) |
+| `-e LD_LIBRARY_PATH=...` | Shared lib search path for host-compiled binaries |
+| `-e LLAMA_SERVER_PATH=...` | Override default llama-server binary path |
 
-You can also override default paths via environment variables:
+Environment variable overrides (precedence: env > config file > default):
 
-```bash
-docker run --gpus all -p 7860:7860 \
-  -e LLAMA_SERVER_PATH=/opt/llama-server \
-  -e LLAMA_MODELS_DIR=/mnt/data/models \
-  -v /path/to/models:/mnt/data/models \
-  -v /path/to/llama-server:/opt/llama-server:ro \
-  llama-wrangler
-```
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `LLAMA_SERVER_PATH` | `/opt/llama-server` | Path to llama-server binary |
+| `LLAMA_MODELS_DIR` | `/mnt/data/models` | Path to GGUF model directory |
 
 > **Note**: CPU and RAM metrics work out of the box in Docker — psutil reads `/proc` which is shared from the host. GPU monitoring requires `--gpus all` via nvidia-container-toolkit.
 
@@ -132,9 +132,11 @@ docker run --gpus all -p 7860:7860 \
 llama-wrangler works without a GPU (CPU-only inference). Simply omit `--gpus all`:
 
 ```bash
-docker run -p 7860:7860 \
+docker run --network host \
+  -e LD_LIBRARY_PATH=/opt/llama.cpp/bin \
+  -e LLAMA_SERVER_PATH=/opt/llama.cpp/bin/llama-server \
   -v /path/to/models:/mnt/data/models \
-  -v /path/to/llama-server:/opt/llama-server:ro \
+  -v /path/to/llama.cpp/build/bin:/opt/llama.cpp/bin:ro \
   llama-wrangler
 ```
 
