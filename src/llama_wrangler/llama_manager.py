@@ -286,7 +286,8 @@ class LlamaInstance:
         if args.threads > 0:
             cmd.extend(["--threads", str(args.threads)])
 
-        cmd.extend(["--flash-attn", "on" if args.flash_attn else "off"])
+        if args.flash_attn:
+            cmd.append("--flash-attn")
 
         if args.cont_batching:
             cmd.append("--cont-batching")

@@ -114,6 +114,17 @@ Volume mounts explained:
 | `-v ~/.config/llama-wrangler:...` | Persist configuration across restarts |
 | `--gpus all` | GPU access (nvidia-smi, CUDA for llama-server) |
 
+You can also override default paths via environment variables:
+
+```bash
+docker run --gpus all -p 7860:7860 \
+  -e LLAMA_SERVER_PATH=/opt/llama-server \
+  -e LLAMA_MODELS_DIR=/mnt/data/models \
+  -v /path/to/models:/mnt/data/models \
+  -v /path/to/llama-server:/opt/llama-server:ro \
+  llama-wrangler
+```
+
 > **Note**: CPU and RAM metrics work out of the box in Docker — psutil reads `/proc` which is shared from the host. GPU monitoring requires `--gpus all` via nvidia-container-toolkit.
 
 ### Without GPU
