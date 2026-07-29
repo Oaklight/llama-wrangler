@@ -847,6 +847,7 @@ let currentTab = 'dashboard';
 let sseSource = null;
 let pendingDelete = null;
 let logLines = [];
+let _dlCache = {};
 
 /* ===== Tabs ===== */
 document.querySelectorAll('.tab').forEach(tab => {
@@ -1299,7 +1300,12 @@ async function startDownload(repoId, filename) {
 }
 
 async function loadDownloads() {
-  try { const data = await api('/api/downloads'); renderDownloads(data.downloads); } catch (e) {}
+  try {
+    const data = await api('/api/downloads');
+    _dlCache = {};
+    data.downloads.forEach(d => { _dlCache[d.repo_id + '/' + d.filename] = d; });
+    renderDownloads(data.downloads);
+  } catch (e) {}
 }
 
 async function cancelDownload(repoId, filename) {
@@ -1476,9 +1482,13 @@ function connectSSE() {
   });
 
   sseSource.addEventListener('download', (e) => {
-    if (currentTab !== 'models') return;
-    loadDownloads();
-    try { const d = JSON.parse(e.data); if (d.status === 'completed') loadModels(); } catch {}
+    try {
+      const d = JSON.parse(e.data);
+      const key = d.repo_id + '/' + d.filename;
+      _dlCache[key] = d;
+      if (currentTab === 'models') renderDownloads(Object.values(_dlCache));
+      if (d.status === 'completed' && currentTab === 'models') loadModels();
+    } catch {}
   });
 
   sseSource.onerror = () => {
