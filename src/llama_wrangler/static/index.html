@@ -1475,7 +1475,11 @@ function connectSSE() {
     updateCapacityBar(d);
   });
 
-  sseSource.addEventListener('download', () => { if (currentTab === 'models') loadDownloads(); });
+  sseSource.addEventListener('download', (e) => {
+    if (currentTab !== 'models') return;
+    loadDownloads();
+    try { const d = JSON.parse(e.data); if (d.status === 'completed') loadModels(); } catch {}
+  });
 
   sseSource.onerror = () => {
     setTimeout(() => { if (sseSource) { sseSource.close(); sseSource = null; } connectSSE(); }, 3000);

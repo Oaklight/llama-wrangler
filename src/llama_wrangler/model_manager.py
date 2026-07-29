@@ -298,17 +298,19 @@ class ModelManager:
         """Perform the actual download using huggingface_hub."""
         from huggingface_hub import hf_hub_download
 
+        loop = asyncio.get_running_loop()
+        tqdm_cls = _make_progress_tqdm(task, self, loop)
+
         try:
             self.models_dir.mkdir(parents=True, exist_ok=True)
 
-            # huggingface_hub handles progress via callbacks internally
-            # We use a thread since hf_hub_download is synchronous
             dest = await asyncio.to_thread(
                 hf_hub_download,
                 repo_id=task.repo_id,
                 filename=task.filename,
                 local_dir=str(self.models_dir),
                 local_dir_use_symlinks=False,
+                tqdm_class=tqdm_cls,
             )
 
             task.progress = 1.0
@@ -333,6 +335,69 @@ class ModelManager:
                 dead.append(q)
         for q in dead:
             self._download_subscribers.remove(q)
+
+
+def _make_progress_tqdm(
+    task: DownloadTask,
+    manager: "ModelManager",
+    loop: asyncio.AbstractEventLoop,
+):
+    """Create a tqdm-compatible class that feeds progress into a DownloadTask."""
+    from tqdm.utils import CallbackIOWrapper  # noqa: F401 — ensures tqdm is available
+
+    class _ProgressBar:
+        def __init__(self, *args, **kwargs):
+            self.total = kwargs.get("total", 0)
+            self.n = 0
+            self._last_broadcast = 0.0
+            if self.total:
+                task.total_bytes = self.total
+
+        def update(self, n=1):
+            self.n += n
+            task.downloaded_bytes = self.n
+            task.progress = self.n / self.total if self.total else 0.0
+            now = time.monotonic()
+            if now - self._last_broadcast >= 0.5:
+                self._last_broadcast = now
+                loop.call_soon_threadsafe(self._enqueue_broadcast)
+
+        def _enqueue_broadcast(self):
+            event = task.to_dict()
+            dead: list[asyncio.Queue] = []
+            for q in manager._download_subscribers:
+                try:
+                    q.put_nowait(event)
+                except asyncio.QueueFull:
+                    dead.append(q)
+            for q in dead:
+                manager._download_subscribers.remove(q)
+
+        def close(self):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            self.close()
+
+        def set_description(self, *args, **kwargs):
+            pass
+
+        def set_postfix(self, *args, **kwargs):
+            pass
+
+        def refresh(self, *args, **kwargs):
+            pass
+
+        def clear(self, *args, **kwargs):
+            pass
+
+        def display(self, *args, **kwargs):
+            pass
+
+    return _ProgressBar
 
 
 def _human_size(size_bytes: int) -> str:
