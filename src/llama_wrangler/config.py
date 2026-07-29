@@ -60,8 +60,8 @@ class ServerArgs:
 class DeckConfig:
     """Top-level configuration for llama-wrangler."""
 
-    llama_server_path: str = "/opt/llama.cpp/build/bin/llama-server"
-    models_dir: str = "/mnt/data/models"
+    llama_server_path: str = os.environ.get("LLAMA_SERVER_PATH", "/opt/llama-server")
+    models_dir: str = os.environ.get("LLAMA_MODELS_DIR", "/mnt/data/models")
     default_args: ServerArgs = field(default_factory=ServerArgs)
 
     def to_dict(self) -> dict:
