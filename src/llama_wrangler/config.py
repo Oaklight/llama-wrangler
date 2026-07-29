@@ -60,8 +60,8 @@ class ServerArgs:
 class DeckConfig:
     """Top-level configuration for llama-wrangler."""
 
-    llama_server_path: str = os.environ.get("LLAMA_SERVER_PATH", "/opt/llama-server")
-    models_dir: str = os.environ.get("LLAMA_MODELS_DIR", "/mnt/data/models")
+    llama_server_path: str = "/opt/llama-server"
+    models_dir: str = "/mnt/data/models"
     default_args: ServerArgs = field(default_factory=ServerArgs)
 
     def to_dict(self) -> dict:
@@ -100,10 +100,17 @@ def load_config(path: str | None = None) -> tuple["DeckConfig", Path]:
     if config_path.exists():
         with open(config_path) as f:
             data = json.load(f)
-        return DeckConfig.from_dict(data), config_path
+        config = DeckConfig.from_dict(data)
+    else:
+        config = DeckConfig()
 
-    # Return defaults, config will be saved on first write
-    return DeckConfig(), config_path
+    # Env vars take highest precedence (env > file > hardcoded default)
+    if env_server := os.environ.get("LLAMA_SERVER_PATH"):
+        config.llama_server_path = env_server
+    if env_models := os.environ.get("LLAMA_MODELS_DIR"):
+        config.models_dir = env_models
+
+    return config, config_path
 
 
 def save_config(config: "DeckConfig", path: Path) -> None:
