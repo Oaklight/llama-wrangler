@@ -56,3 +56,6 @@ extend-exclude = ["src/llama_wrangler/_vendor"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "UP"]
+
+[tool.zerodep]
+vendor-dir = "src/llama_wrangler/_vendor"
