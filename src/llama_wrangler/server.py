@@ -51,9 +51,12 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
         app.sysmon.start()
 
     @app.on_shutdown
-    async def _cleanup():
-        logger.info("Stopping all instances and monitors")
+    async def _stop_instances():
+        logger.info("Stopping all instances")
         await app.instances.stop_all()
+
+    @app.on_shutdown
+    async def _stop_monitors():
         app.sysmon.stop()
 
     # --- Static / UI ---
