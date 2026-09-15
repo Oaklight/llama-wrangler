@@ -46,6 +46,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build wheel for Docker
+        id: wheel
+        run: |
+          pip install --upgrade pip build
+          python -m build --wheel
+          WHEEL=$(ls dist/*.whl | head -1 | xargs basename)
+          echo "filename=$WHEEL" >> "$GITHUB_OUTPUT"
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -81,8 +93,11 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: docker/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
+          build-args: |
+            LOCAL_WHEEL=${{ steps.wheel.outputs.filename }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
