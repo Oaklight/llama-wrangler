@@ -380,11 +380,12 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
 
             except asyncio.CancelledError:
                 pass
-            finally:
-                app.instances.unsubscribe_logs(log_q)
-                app.instances.unsubscribe_status(status_q)
-                app.sysmon.unsubscribe(sys_q)
-                app.models.unsubscribe_downloads(dl_q)
+
+        def unsubscribe_all():
+            app.instances.unsubscribe_logs(log_q)
+            app.instances.unsubscribe_status(status_q)
+            app.sysmon.unsubscribe(sys_q)
+            app.models.unsubscribe_downloads(dl_q)
 
         return StreamingResponse(
             generate(),
@@ -394,6 +395,7 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
                 "Connection": "keep-alive",
                 "X-Accel-Buffering": "no",
             },
+            background=unsubscribe_all,
         )
 
     return app
