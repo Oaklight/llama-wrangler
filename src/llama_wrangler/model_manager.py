@@ -324,9 +324,8 @@ class ModelManager:
 
         await self._broadcast_download(task)
 
-    async def _broadcast_download(self, task: DownloadTask) -> None:
-        """Send download progress to subscribers."""
-        event = task.to_dict()
+    def _notify_subscribers(self, event: dict) -> None:
+        """Push an event to all download subscribers, dropping full queues."""
         dead: list[asyncio.Queue] = []
         for q in self._download_subscribers:
             try:
@@ -336,6 +335,10 @@ class ModelManager:
         for q in dead:
             self._download_subscribers.remove(q)
 
+    async def _broadcast_download(self, task: DownloadTask) -> None:
+        """Send download progress to subscribers."""
+        self._notify_subscribers(task.to_dict())
+
 
 def _make_progress_tqdm(
     task: DownloadTask,
@@ -343,7 +346,6 @@ def _make_progress_tqdm(
     loop: asyncio.AbstractEventLoop,
 ):
     """Create a tqdm-compatible class that feeds progress into a DownloadTask."""
-    from tqdm.utils import CallbackIOWrapper  # noqa: F401 — ensures tqdm is available
 
     class _ProgressBar:
         def __init__(self, *args, **kwargs):
@@ -363,18 +365,10 @@ def _make_progress_tqdm(
                 loop.call_soon_threadsafe(self._enqueue_broadcast)
 
         def _enqueue_broadcast(self):
-            event = task.to_dict()
-            dead: list[asyncio.Queue] = []
-            for q in manager._download_subscribers:
-                try:
-                    q.put_nowait(event)
-                except asyncio.QueueFull:
-                    dead.append(q)
-            for q in dead:
-                manager._download_subscribers.remove(q)
+            manager._notify_subscribers(task.to_dict())
 
         def close(self):
-            pass
+            loop.call_soon_threadsafe(self._enqueue_broadcast)
 
         def __enter__(self):
             return self

@@ -1485,10 +1485,15 @@ function connectSSE() {
     try {
       const d = JSON.parse(e.data);
       const key = d.repo_id + '/' + d.filename;
-      _dlCache[key] = d;
-      if (currentTab === 'models') renderDownloads(Object.values(_dlCache));
-      if (d.status === 'completed' && currentTab === 'models') loadModels();
-    } catch {}
+      if (d.status === 'completed' || d.status === 'failed' || d.status === 'cancelled') {
+        delete _dlCache[key];
+        if (currentTab === 'models') loadDownloads();
+        if (d.status === 'completed') loadModels();
+      } else {
+        _dlCache[key] = d;
+        if (currentTab === 'models') renderDownloads(Object.values(_dlCache));
+      }
+    } catch (err) { console.warn('SSE download parse error', err); }
   });
 
   sseSource.onerror = () => {
