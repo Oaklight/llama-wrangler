@@ -385,10 +385,16 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
                 pass
 
         def unsubscribe_all():
-            app.instances.unsubscribe_logs(log_q)
-            app.instances.unsubscribe_status(status_q)
-            app.sysmon.unsubscribe(sys_q)
-            app.models.unsubscribe_downloads(dl_q)
+            for fn, q in [
+                (app.instances.unsubscribe_logs, log_q),
+                (app.instances.unsubscribe_status, status_q),
+                (app.sysmon.unsubscribe, sys_q),
+                (app.models.unsubscribe_downloads, dl_q),
+            ]:
+                try:
+                    fn(q)
+                except Exception:
+                    logger.debug("Failed to unsubscribe %s", fn, exc_info=True)
 
         return StreamingResponse(
             generate(),
