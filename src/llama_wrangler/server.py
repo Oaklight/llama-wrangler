@@ -46,12 +46,9 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
 
     # --- Lifecycle hooks ---
 
-    @app.before_request
-    async def _start_monitors(request):
-        """Start system monitor on first request (lazy init)."""
-        if not hasattr(app, "_monitors_started"):
-            app.sysmon.start()
-            app._monitors_started = True
+    @app.on_startup
+    async def _start_monitors():
+        app.sysmon.start()
 
     # --- Static / UI ---
 
