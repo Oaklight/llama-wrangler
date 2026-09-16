@@ -4,6 +4,10 @@ import asyncio
 import importlib.resources
 import json
 import logging
+import re
+import time
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 from llama_wrangler._vendor.httpserver import App, StreamingResponse, abort
@@ -16,6 +20,10 @@ logger = logging.getLogger(__name__)
 
 # Cache the index.html content
 _index_html: str | None = None
+
+# Cache for GitHub release data
+_github_release_cache: dict = {"data": None, "fetched_at": 0.0}
+_GITHUB_CACHE_TTL = 3600  # seconds
 
 
 def _load_index_html() -> str:
@@ -337,6 +345,113 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
 
         save_config(app.config, app.config_path)
         return {"config": app.config.to_dict()}
+
+    # --- llama-server Version Check ---
+
+    async def _get_installed_version(server_path: str) -> dict:
+        """Run llama-server --version and parse the output."""
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                server_path,
+                "--version",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=10.0)
+            text = stdout.decode("utf-8", errors="replace").strip()
+            m = re.search(
+                r"version:\s+(\S+)\s+\(build\s+(\d+),\s+commit\s+([0-9a-f]+)\)",
+                text,
+            )
+            if m:
+                return {
+                    "version": m.group(1),
+                    "build": int(m.group(2)),
+                    "commit": m.group(3),
+                }
+            return {"error": "parse_failed", "raw": text}
+        except FileNotFoundError:
+            return {"error": "not_found"}
+        except asyncio.TimeoutError:
+            return {"error": "timeout"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def _get_latest_release() -> dict:
+        """Fetch latest llama.cpp release from GitHub, with caching.
+
+        Tries /releases/latest first (stable releases). If the tag is not a
+        bNNNNN build tag, falls back to listing recent releases to find the
+        newest prerelease with a bNNNNN tag — llama.cpp cuts frequent
+        prereleases with build numbers that match llama-server --version.
+        """
+        now = time.time()
+        if (
+            _github_release_cache["data"] is not None
+            and now - _github_release_cache["fetched_at"] < _GITHUB_CACHE_TTL
+        ):
+            return _github_release_cache["data"]
+
+        def _parse_release(data: dict) -> dict:
+            tag = data.get("tag_name", "")
+            m = re.match(r"b(\d+)", tag)
+            return {
+                "tag": tag,
+                "build": int(m.group(1)) if m else None,
+                "url": data.get("html_url", ""),
+            }
+
+        def _fetch() -> dict:
+            base = "https://api.github.com/repos/ggml-org/llama.cpp/releases"
+            headers = {
+                "Accept": "application/vnd.github+json",
+                "User-Agent": "llama-wrangler",
+            }
+            try:
+                # Try /releases/latest (non-prerelease)
+                req = urllib.request.Request(f"{base}/latest", headers=headers)
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    result = _parse_release(json.loads(resp.read()))
+                if result["build"] is not None:
+                    return result
+
+                # Stable release has no build number — scan recent prereleases
+                req = urllib.request.Request(
+                    f"{base}?per_page=5",
+                    headers=headers,
+                )
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    releases = json.loads(resp.read())
+                for rel in releases:
+                    parsed = _parse_release(rel)
+                    if parsed["build"] is not None:
+                        return parsed
+                # No bNNNNN tag found at all — return the stable release info
+                return result
+            except Exception as e:
+                return {"error": str(e)}
+
+        result = await asyncio.to_thread(_fetch)
+        if "error" not in result:
+            _github_release_cache["data"] = result
+            _github_release_cache["fetched_at"] = now
+        return result
+
+    @app.get("/api/llama-server/version")
+    async def get_llama_server_version(request):
+        """Get installed llama-server version and latest available release."""
+        installed = await _get_installed_version(app.config.llama_server_path)
+        latest = await _get_latest_release()
+
+        update_available = False
+        if "error" not in installed and "error" not in latest and latest.get("build") is not None:
+            update_available = latest["build"] > installed["build"]
+
+        return {
+            "installed": installed,
+            "latest": latest,
+            "update_available": update_available,
+        }
 
     # --- SSE Event Stream ---
 
