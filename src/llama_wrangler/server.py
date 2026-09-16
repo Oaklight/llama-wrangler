@@ -359,6 +359,7 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
             )
             stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=10.0)
             text = stdout.decode("utf-8", errors="replace").strip()
+            # Format A: "version: 0.3.0-dev (build 10797, commit 235f4e8)"
             m = re.search(
                 r"version:\s+(\S+)\s+\(build\s+(\d+),\s+commit\s+([0-9a-f]+)\)",
                 text,
@@ -368,6 +369,14 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
                     "version": m.group(1),
                     "build": int(m.group(2)),
                     "commit": m.group(3),
+                }
+            # Format B: "version: 9863 (94875285e)"
+            m = re.search(r"version:\s+(\d+)\s+\(([0-9a-f]+)\)", text)
+            if m:
+                return {
+                    "version": None,
+                    "build": int(m.group(1)),
+                    "commit": m.group(2),
                 }
             return {"error": "parse_failed", "raw": text}
         except FileNotFoundError:

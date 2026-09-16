@@ -1,0 +1,34 @@
+services:
+  llama-wrangler:
+    image: oaklight/llama-wrangler:${IMAGE_TAG:-latest}
+    container_name: llama-wrangler
+    network_mode: host
+    restart: unless-stopped
+    command: ["--host", "0.0.0.0", "--port", "7860"]
+    environment:
+      - LD_LIBRARY_PATH=/opt/llama.cpp/bin:/opt/cuda/lib64:/usr/lib/host
+    volumes:
+      # llama-server binary (host-compiled with CUDA)
+      - /opt/llama.cpp/build/bin:/opt/llama.cpp/bin:ro
+      # CUDA libraries
+      - /opt/cuda/lib64:/opt/cuda/lib64:ro
+      # Host shared libraries (glibc-dependent)
+      - /usr/lib/libgomp.so.1:/usr/lib/host/libgomp.so.1:ro
+      - /usr/lib/libssl.so.3:/usr/lib/host/libssl.so.3:ro
+      - /usr/lib/libcrypto.so.3:/usr/lib/host/libcrypto.so.3:ro
+      - /usr/lib/libbrotlienc.so.1:/usr/lib/host/libbrotlienc.so.1:ro
+      - /usr/lib/libbrotlidec.so.1:/usr/lib/host/libbrotlidec.so.1:ro
+      - /usr/lib/libbrotlicommon.so.1:/usr/lib/host/libbrotlicommon.so.1:ro
+      - /usr/lib/libzstd.so.1:/usr/lib/host/libzstd.so.1:ro
+      # sysfs (for GPU monitoring)
+      - /sys:/sys:ro
+      # Data
+      - /mnt/data/models:/mnt/data/models
+      - /dockervol/llama-wrangler/config:/root/.config/llama-wrangler
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
