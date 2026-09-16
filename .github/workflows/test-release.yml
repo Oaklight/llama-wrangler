@@ -21,12 +21,19 @@ jobs:
           python-version: "3.12"
 
       - name: Verify version matches package
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
         run: |
-          PKG_VER=$(python -c "import re; m=re.search(r'__version__\s*=\s*\"(.+?)\"', open('src/llama_wrangler/__init__.py').read()); print(m.group(1))")
+          PKG_VER=$(python -c "
+          import re
+          m = re.search(r\"__version__\s*=\s*[\\\"'](.+?)[\\\"']\", open('src/llama_wrangler/__init__.py').read())
+          assert m, '__version__ not found in __init__.py'
+          print(m.group(1))
+          ")
           echo "Package version: $PKG_VER"
-          echo "Requested version: ${{ inputs.version }}"
-          [ "$PKG_VER" = "${{ inputs.version }}" ] || \
-            (echo "::error::Version mismatch: __init__.py has $PKG_VER but release requested ${{ inputs.version }}"; exit 1)
+          echo "Requested version: $REQUESTED_VERSION"
+          [ "$PKG_VER" = "$REQUESTED_VERSION" ] || \
+            (echo "::error::Version mismatch: __init__.py has $PKG_VER but release requested $REQUESTED_VERSION"; exit 1)
 
       - name: Build wheel + sdist
         run: |
@@ -54,26 +61,24 @@ jobs:
 
       - name: Extract version
         id: meta
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          VERSION="${{ inputs.version }}"
-          VERSION="${VERSION#v}"
+          VERSION="${INPUT_VERSION#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Ensure dist/ exists
-        run: mkdir -p dist
 
       - name: Wait for Test PyPI availability
         run: |
           VERSION="${{ steps.meta.outputs.version }}"
+          URL="https://test.pypi.org/pypi/llama-wrangler/$VERSION/json"
           echo "Waiting for llama-wrangler==$VERSION on Test PyPI..."
           for i in $(seq 1 30); do
-            CODE=$(curl -fsS -o /dev/null -w "%{http_code}" \
-              "https://test.pypi.org/pypi/llama-wrangler/$VERSION/json" || true)
+            CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$URL" 2>&1 || echo "curl_error")
             if [ "$CODE" = "200" ]; then
               echo "Found on Test PyPI (attempt $i)"
               exit 0
             fi
-            echo "  Attempt $i/30: waiting 20s..."
+            echo "  Attempt $i/30 — status: $CODE, retrying in 20s..."
             sleep 20
           done
           echo "::error::Not found on Test PyPI after 10 minutes"
