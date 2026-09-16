@@ -22,11 +22,14 @@ RUN PIP_FLAGS="--no-cache-dir --break-system-packages"; \
         echo "Installing from local wheel: $LOCAL_WHEEL"; \
         pip install $PIP_FLAGS "/tmp/dist/$LOCAL_WHEEL"; \
     elif [ -n "$EXTRA_INDEX_URL" ] && [ -n "$PACKAGE_VERSION" ]; then \
+        # Step 1: install the package from TestPyPI (no deps to avoid broken transitives)
         echo "Installing llama-wrangler==$PACKAGE_VERSION from $EXTRA_INDEX_URL (no-deps)"; \
         pip install $PIP_FLAGS --extra-index-url "$EXTRA_INDEX_URL" --no-deps \
             "llama-wrangler==$PACKAGE_VERSION"; \
+        # Step 2: let pip resolve dependencies from regular PyPI
         echo "Installing dependencies from PyPI"; \
-        pip install $PIP_FLAGS "llama-wrangler==$PACKAGE_VERSION"; \
+        pip install $PIP_FLAGS --extra-index-url "$EXTRA_INDEX_URL" \
+            "llama-wrangler==$PACKAGE_VERSION"; \
     elif [ -n "$PACKAGE_VERSION" ]; then \
         echo "Installing llama-wrangler==$PACKAGE_VERSION"; \
         pip install $PIP_FLAGS "llama-wrangler==$PACKAGE_VERSION"; \
