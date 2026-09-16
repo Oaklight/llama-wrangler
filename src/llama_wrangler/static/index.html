@@ -78,6 +78,10 @@ body {
   border-radius: 50%;
   background: currentColor;
 }
+.version-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 16px 0; }
+.version-badges .badge { font-size: 12px; cursor: default; }
+.version-badges a.badge { text-decoration: none; cursor: pointer; }
+.version-badges a.badge:hover { filter: brightness(0.9); }
 
 /* ===== Tabs ===== */
 .tabs {
@@ -571,6 +575,11 @@ td.actions { white-space: nowrap; text-align: right; }
   <div class="tab-panel" id="tab-config">
     <div class="card">
       <h3 data-i18n="section.config">llama-server Configuration</h3>
+      <div class="version-badges" id="versionBadges" style="display:none;">
+        <span class="badge badge-dim" id="badgeInstalled"></span>
+        <span class="badge badge-dim" id="badgeLatest"></span>
+        <a class="badge badge-warn" id="badgeUpdate" href="#" target="_blank" rel="noopener" style="display:none;"></a>
+      </div>
       <div class="form-group">
         <label data-i18n="cfg.serverPath">llama-server path</label>
         <input type="text" id="cfgServerPath">
@@ -739,6 +748,7 @@ const I18N = {
     'modal.newInstance':'New Instance','modal.editInstance':'Edit Instance',
     'btn.edit':'Edit','btn.saveRestart':'Save & Restart',
     'toast.instanceCreated':'Instance created','toast.instanceRemoved':'Instance removed',
+    'version.installed':'Installed','version.latest':'Latest','version.updateAvailable':'Update Available','version.notFound':'Binary not found','version.checkFailed':'Version check failed',
     'cfg.serverPath':'llama-server path','cfg.modelsDir':'Models directory',
     'cfg.host':'Host','cfg.port':'Port','cfg.gpuLayers':'GPU Layers (n_gpu_layers)','cfg.ctxSize':'Context Size (ctx_size)',
     'cfg.batchSize':'Batch Size','cfg.ubatchSize':'Micro-Batch Size (ubatch_size)',
@@ -776,6 +786,7 @@ const I18N = {
     'modal.newInstance':'新建实例','modal.editInstance':'编辑实例',
     'btn.edit':'编辑','btn.saveRestart':'保存并重启',
     'toast.instanceCreated':'实例已创建','toast.instanceRemoved':'实例已移除',
+    'version.installed':'已安装','version.latest':'最新版','version.updateAvailable':'有更新','version.notFound':'未找到可执行文件','version.checkFailed':'版本检查失败',
     'cfg.serverPath':'llama-server 路径','cfg.modelsDir':'模型目录',
     'cfg.host':'主机','cfg.port':'端口','cfg.gpuLayers':'GPU 层数 (n_gpu_layers)','cfg.ctxSize':'上下文大小 (ctx_size)',
     'cfg.batchSize':'批处理大小','cfg.ubatchSize':'微批处理大小 (ubatch_size)',
@@ -833,6 +844,7 @@ function setLang(lang) {
   loadModels();
   if (currentTab === 'dashboard') loadStatus();
   if (currentTab === 'instances') loadInstances();
+  if (currentTab === 'config') loadVersionInfo();
 }
 
 let currentTheme = localStorage.getItem('llama-wrangler-theme') || 'light';
@@ -1264,7 +1276,7 @@ async function searchHF() {
       if (r.pipeline_tag) badges.push(r.pipeline_tag);
       return `
       <div class="hf-result" onclick="showRepoFiles('${esc(r.repo_id)}')">
-        <div class="repo-header"><div class="repo-name">${esc(r.repo_id)}</div><a class="source-link" href="https://huggingface.co/${esc(r.repo_id)}" target="_blank" rel="noopener" title="Open on Hugging Face" onclick="event.stopPropagation()"><!-- TODO: derive URL + icon from r.source --><svg class="icon"><use href="#ico-hf"/></svg></a></div>
+        <div class="repo-header"><div class="repo-name">${esc(r.repo_id)}</div><a class="source-link" href="https://huggingface.co/${encodeURI(r.repo_id)}" target="_blank" rel="noopener" title="Open on Hugging Face" onclick="event.stopPropagation()"><!-- TODO: derive URL + icon from r.source --><svg class="icon"><use href="#ico-hf"/></svg></a></div>
         ${badges.length ? '<div class="repo-badges">' + badges.map(b => '<span class="badge badge-dim">' + esc(b) + '</span>').join('') + '</div>' : ''}
         <div class="repo-meta">
           <span><svg class="icon"><use href="#ico-download"/></svg> ${r.downloads?.toLocaleString() || '?'}</span>
@@ -1354,6 +1366,7 @@ function renderDownloads(downloads) {
 /* ===== Config ===== */
 async function loadConfig() {
   try {
+    loadVersionInfo();
     const data = await api('/api/config');
     const c = data.config, a = c.default_args || {};
     document.getElementById('cfgServerPath').value = c.llama_server_path || '';
@@ -1370,6 +1383,39 @@ async function loadConfig() {
     document.getElementById('cfgContBatching').checked = a.cont_batching !== false;
     document.getElementById('cfgMetrics').checked = a.metrics !== false;
   } catch (e) {}
+}
+
+async function loadVersionInfo() {
+  const container = document.getElementById('versionBadges');
+  const badgeInstalled = document.getElementById('badgeInstalled');
+  const badgeLatest = document.getElementById('badgeLatest');
+  const badgeUpdate = document.getElementById('badgeUpdate');
+  badgeUpdate.style.display = 'none';
+  try {
+    const data = await api('/api/llama-server/version');
+    container.style.display = 'flex';
+    if (data.installed.error) {
+      badgeInstalled.className = 'badge badge-error';
+      badgeInstalled.textContent = data.installed.error === 'not_found' ? t('version.notFound') : t('version.checkFailed');
+    } else {
+      badgeInstalled.className = 'badge badge-dim';
+      badgeInstalled.textContent = t('version.installed') + ': b' + data.installed.build;
+    }
+    if (data.latest.error) {
+      badgeLatest.className = 'badge badge-dim';
+      badgeLatest.textContent = t('version.latest') + ': --';
+    } else {
+      badgeLatest.className = 'badge badge-dim';
+      badgeLatest.textContent = t('version.latest') + ': ' + data.latest.tag;
+    }
+    if (data.update_available) {
+      badgeUpdate.style.display = 'inline-flex';
+      badgeUpdate.textContent = t('version.updateAvailable');
+      badgeUpdate.href = data.latest.url || 'https://github.com/ggml-org/llama.cpp/releases/latest';
+    }
+  } catch (e) {
+    container.style.display = 'none';
+  }
 }
 
 async function saveConfig() {
