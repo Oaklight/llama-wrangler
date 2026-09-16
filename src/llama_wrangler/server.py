@@ -357,8 +357,8 @@ def create_app(config: DeckConfig, config_path: Path) -> App:
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
-            stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=10.0)
-            text = stdout.decode("utf-8", errors="replace").strip()
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10.0)
+            text = (stdout + stderr).decode("utf-8", errors="replace").strip()
             # Format A: "version: 0.3.0-dev (build 10797, commit 235f4e8)"
             m = re.search(
                 r"version:\s+(\S+)\s+\(build\s+(\d+),\s+commit\s+([0-9a-f]+)\)",
